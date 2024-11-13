@@ -1,0 +1,246 @@
+#ifndef FUNCTION_H_INCLUDED
+#define FUNCTION_H_INCLUDED
+#include <stdio.h>
+#include <stdlib.h>
+#include <windows.h>
+typedef struct{
+char nom[20];
+char prenom[20];
+char massar[20];
+char CIN[20];
+char email[20];
+char password[20];
+
+}user;
+void setBackgroundColor(int bg) {
+    // Get the current console handle
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    // Get the current attributes (foreground color)
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(hConsole, &csbi);
+
+    // Extract the current foreground color
+    int fg = csbi.wAttributes & 0x0F; // Get the foreground color (lower 4 bits)
+
+    // Combine foreground and new background color
+    int color = (bg << 4) | fg; // Shift background color and combine with foreground
+    SetConsoleTextAttribute(hConsole, color);
+}
+
+void gotoxy(int x, int y) {
+    COORD coord;
+    coord.X = x;
+    coord.Y = y;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+}
+
+void setcolor(int color) {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, color);
+}
+void head(){
+    setcolor(9); // Set text color to bleau
+    printf("****************************************************************************************************************************************************************************\n");
+    gotoxy(65, 2);
+    printf("-      WELCOME TO ENSAH LIBRARY    -\n");
+    gotoxy(0, 4);
+    printf("****************************************************************************************************************************************************************************\n");
+    setcolor(7);} // Reset text color to white
+
+void sign_in(){
+    FILE *p_file;
+    user u;
+    p_file=fopen("liste_inscription.txt","a");
+    if (p_file == NULL) {
+        printf("Error opening file.\n");
+        exit(0);
+    }
+     setcolor(9); // Set color for the borders
+    gotoxy(65, 8);
+    printf("************************************\n");
+
+    gotoxy(65, 9);
+    printf("-             SIGN IN              -\n");
+
+    gotoxy(65, 10);
+    printf("************************************\n");
+    gotoxy(55,9);
+    printf("----------");
+    gotoxy(101,9);
+    printf("----------");
+    gotoxy(65,20);
+    printf("************************************");
+    setcolor(7); // Reset color for text input fields
+
+    setcolor(7); // Reset color for text input fields
+    gotoxy(65,12);
+    printf("enter votre nom:\n ");
+    gotoxy(65,13);
+    printf("enter votre prenom:\n");
+    gotoxy(65,14);
+    printf("enter votre CIN:\n");
+    gotoxy(65,15);
+    printf("enter votre massar:\n");
+    gotoxy(65,16);
+    printf("enter votre email:\n");
+    gotoxy(65,17);
+    printf("enter password :\n");
+    gotoxy(81,12);
+    scanf("%s",u.nom);
+    gotoxy(84,13);
+    scanf("%s",u.prenom);
+    gotoxy(81,14);
+    scanf("%s",u.CIN);
+    gotoxy(84,15);
+    scanf("%s",u.massar);
+    gotoxy(83,16);
+    scanf("%s",u.email);
+    gotoxy(81,17);
+    scanf("%s",u.password);
+    fprintf(p_file, "%s %s %s %s %s %s\n", u.nom, u.prenom, u.CIN, u.massar, u.email, u.password);
+    fclose(p_file);
+
+printf("you register succefully");
+
+}
+void LOGIN(){
+    FILE *p_file;
+    p_file=fopen("liste_inscription.txt","r");
+    char username[30];
+    char password[30];
+
+    setcolor(9); // Set color for the borders
+    gotoxy(65, 8);
+    printf("************************************\n");
+
+    gotoxy(65, 9);
+    printf("-      LOGIN TO YOUR ACCOUNT       -\n");
+
+    gotoxy(65, 10);
+    printf("************************************\n");
+    gotoxy(55,9);
+    printf("----------");
+    gotoxy(101,9);
+    printf("----------");
+    gotoxy(65,17);
+    printf("************************************");
+    setcolor(7); // Reset color for text input fields
+
+    // Username prompt
+    gotoxy(65, 12);
+    printf("Username: ");
+
+
+    // Password prompt
+    gotoxy(65, 15);
+    printf("Password: ");
+    gotoxy(75,12);
+    scanf("%s",username);
+    gotoxy(75,14);
+    scanf("%s",password);
+}
+
+void login_sign_in(){
+    int n,contour=0;
+    while(1){
+    // Set color for the top border
+    setcolor(9); // Blue for the border
+    gotoxy(65, 9);
+    printf("***************************************\n");
+
+    // Set color for the login option
+    setcolor(9);
+    gotoxy(65, 10);
+    printf("|            ");
+    setcolor(7);
+    printf("1. Login                 ");
+    setcolor(9);
+    printf("|\n");
+
+    // Set color for the sign-in option
+    setcolor(9);
+    gotoxy(65, 12);
+    printf("|            ");
+    setcolor(7);
+    printf("2. Sign In               ");
+    setcolor(9);
+    printf("|\n");
+    // Set color for the exit option
+    setcolor(9);
+    gotoxy(65, 14);
+    printf("|            ");
+    setcolor(7);
+    printf("3. Exit                  ");
+    setcolor(9);
+    printf("|\n");
+    setcolor(9);
+        gotoxy(65, 15);
+        printf("***************************************\n");
+
+        setcolor(07);
+        gotoxy(57, 18);
+        setcolor(9);
+        printf("******************************************************\n");
+        gotoxy(57, 19);
+        printf("|");
+        setcolor(7);
+        gotoxy(65, 19);
+        printf("Please select a valid option (1-3): ");
+        setcolor(9);
+        gotoxy(110, 19);
+        printf("|");
+        gotoxy(57, 20);
+        printf("******************************************************\n");
+
+        gotoxy(117, 37);
+        setcolor(07);
+        printf("2024 ENSAH LIBRARY. All rights reserved.");
+
+        gotoxy(101, 19);
+        setcolor(7);
+        scanf("%d", &n);
+        tarik:
+    // Read user input
+    switch (n) {
+            case 1:
+    system("cls"); // Clear the screen
+    LOGIN(); // Call the login function
+    return; // Exit the function after successful login
+            case 2:
+                system("cls");
+                sign_in();
+                return ;
+            case 3:
+                setcolor(11);
+                gotoxy(74,30);
+                printf("THANK YOU FOR YOUR VISIT ");
+                Sleep(4000);
+                setcolor(07);
+                exit(0); // Exit the program
+           default:
+                    gotoxy(57, 22);
+                    setcolor(9);
+                    printf("******************************************************\n");
+                    gotoxy(57, 23);
+                    printf("|");
+                    setcolor(7);
+                    gotoxy(60, 23);
+                    printf("Invalid input.Please select a valid option (1-3): ");
+                    setcolor(9);
+                    gotoxy(110, 23);
+                    printf("|\n");
+                    setcolor(9);
+                    gotoxy(57, 24);
+                    printf("******************************************************\n");
+                    gotoxy(109, 23);
+                    setcolor(7);
+                    scanf("%d",&n);
+                    goto tarik;
+
+    }
+    }
+    }
+#endif // FUNCTION_H_INCLUDED
+}
+

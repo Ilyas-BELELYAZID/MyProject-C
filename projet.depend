@@ -1,0 +1,23 @@
+# depslib dependency file v1.0
+1730415981 source:c:\users\hp\desktop\informatique 2\pr. nabil kannouf 2022-2023\projet\main.c
+	<stdio.h>
+	<stdlib.h>
+	<windows.h>
+	"FUNCTION.H"
+
+1730415987 c:\users\hp\desktop\informatique 2\pr. nabil kannouf 2022-2023\projet\function.h
+	<stdio.h>
+	<stdlib.h>
+	<windows.h>
+
+1730910367 source:c:\users\ilyas bel el yazid\desktop\projet\main.c
+	<stdio.h>
+	<stdlib.h>
+	<windows.h>
+	"FUNCTION.H"
+
+1730910383 c:\users\ilyas bel el yazid\desktop\projet\function.h
+	<stdio.h>
+	<stdlib.h>
+	<windows.h>
+
