@@ -3,8 +3,7 @@
 #include <windows.h>
 #include "FUNCTION.H"
 int main() {
-head();
-login_sign_in();
+homepage();
 
     return 0;
 }

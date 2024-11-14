@@ -4,10 +4,17 @@
 #include<windows.h>
 #include "FUNCTION.H"
 #include "FS.h"
+#define fileName "code.txt"
 int main()
 {
     int choix;
-    livre *debut = NULL;
+    plivre debut ;
+    FILE* pFile = fopen(fileName , "r+t");
+    fscanf(pFile , "%p" , &debut);
+    fclose(pFile);
+
+
+
     setcolor(9);
     gotoxy(10,5);
     puts("Voici le menu \: ");
@@ -83,6 +90,12 @@ int main()
     printf("\nPlease select a valid option (0-9): ");
     scanf("%d", &choix);
     }while(choix != 0);
+    printf("debut = %p", debut);
+
+    pFile = fopen(fileName , "w+t");
+    fprintf(pFile , "%p" , debut);
+    fclose(pFile);
+
     getch();
     return 0;
 }

@@ -2,45 +2,64 @@
 #define FS_H_INCLUDED
 #include <stdio.h>
 #include <stdlib.h>
+#include<string.h>
 #include <windows.h>
 #define nomFile "livre.txt"
 #define nomFile_1 "livre_1.txt"
 
+
+typedef struct info_livre
+{
+    int ID , ans_publication ;
+    char titre[20] , auteur[20] , editeur[30] ;
+}info_livre;
 
 
 
 // creation d'une structure :
 typedef struct livre
 {
-    int ID , ans_publication ;
-    char titre[20] , auteur[20] , editeur[30] ;
+    info_livre donnees;
     struct livre *suivant ;
+    struct livre *precedent ;
 }livre;
 
-void saiser_informations(livre **b)
+typedef livre* plivre;
+
+void saiser_informations(plivre *b)
 {
-    printf("Entrer id du livre \: ") ; scanf("%d",&((*b)->ID) );
-    printf("Entrer le titre du livre \: ") ; scanf("%s",&((*b)->titre)) ;
-    printf("Entrer nom d'acteur du livre \: ") ; scanf("%s",&((*b)->auteur)) ;
-    printf("Entrer l'ans du publication du livre \: ") ; scanf("%d",&((*b)->ans_publication)) ;
-    printf("Entrer l'editeur du livre \: ") ; scanf("%s",&((*b)->editeur)) ;
+    printf("Entrer id du livre : ") ; scanf("%d",&((*b)->donnees.ID) );
+    printf("Entrer le titre du livre : ") ; scanf("%s",&((*b)->donnees.titre)) ;
+    printf("Entrer nom d'acteur du livre : ") ; scanf("%s",&((*b)->donnees.auteur)) ;
+    printf("Entrer l'ans du publication du livre : ") ; scanf("%d",&((*b)->donnees.ans_publication)) ;
+    printf("Entrer l'editeur du livre : ") ; scanf("%s",&((*b)->donnees.editeur)) ;
 }
 
-void ajouter_livre(livre ** debut)
+
+void creation_maillon(plivre *b)
+{
+    (*b) = (plivre) malloc (sizeof(livre));
+    saiser_informations(b);
+    (*b)->suivant = NULL;
+    (*b)->precedent = NULL;
+}
+
+
+void ajouter_livre(plivre * debut)
 {
         // ajout des livres :
-        printf("Entrer les informations sur livre : \n\n");
-        livre *b , *temp;
-        b = (livre*) malloc (sizeof(livre));
-        saiser_informations(&b);
-        b->suivant = NULL;
+        plivre b = NULL , temp;
+        puts("Entrer les informations sur livre : \n");
+        creation_maillon(&b);
         if((*debut) == NULL) (*debut) = b;
         else
         {
             temp = (*debut);
             while(temp->suivant != NULL) temp = temp->suivant;
             temp->suivant = b;
+            b->precedent = temp;
         }
+
         FILE* fp = fopen(nomFile , "a+t");
         if(fp == NULL) {
             printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile);
@@ -48,7 +67,7 @@ void ajouter_livre(livre ** debut)
         }
         //if(ftell(fp)) fputs("ID \t Titre \t Auteur \t Editeur \t Ans Publication\n" , fp);
 
-        fprintf(fp , "%d \t %s \t %s \t\t  %s \t\t  %d\n" , (b->ID) , (b->titre) , (b->auteur) , (b->editeur) , (b->ans_publication));
+        fprintf(fp , "%d \t %s \t %s \t\t  %s \t\t  %d\n" , (b->donnees.ID) , (b->donnees.titre) , (b->donnees.auteur) , (b->donnees.editeur) , (b->donnees.ans_publication));
         printf("l'enregesretement des informations s'effectue avec succee \n") ;
 
         int n = fclose(fp);
@@ -56,33 +75,29 @@ void ajouter_livre(livre ** debut)
 }
 
 
-void suprimer_livre(livre ** debut)
+void suprimer_livre(plivre * debut)
 {
+    plivre tmp , info = NULL;
     printf("Entrer les informations sur livre que vous voulez supprimer : \n\n");
-    livre *tmp , *P , *info;
-    info = (livre*) malloc (sizeof(livre));
-    tmp = (*debut);
-    saiser_informations(&info);
-    info->suivant = NULL;
+    creation_maillon(&info);
     if((*debut) != NULL)
     {
-        if(((*debut)->ID == info->ID) && ((*debut)->titre == info->titre) && ((*debut)->auteur == info->auteur) && ((*debut)->editeur == info->editeur) && ((*debut)->ans_publication == info->ans_publication))
+        if(((*debut)->donnees.ID == info->donnees.ID) && !stricmp((*debut)->donnees.titre , info->donnees.titre) && !stricmp((*debut)->donnees.auteur , info->donnees.auteur) && !stricmp((*debut)->donnees.editeur , info->donnees.editeur) && ((*debut)->donnees.ans_publication == info->donnees.ans_publication))
         {
-            P = (*debut);
             (*debut) = (*debut)->suivant;
-            free(P);
-            P = NULL;
+            free((*debut)->precedent);
+            (*debut)->precedent = NULL;
         }
         else
         {
-            tmp = (*debut);
-            while((tmp->suivant != NULL) && ((tmp->suivant->ID != info->ID) || (tmp->suivant->titre != info->titre) || (tmp->suivant->auteur != info->auteur) || (tmp->suivant->editeur != info->editeur) || (tmp->suivant->ans_publication != info->ans_publication))) tmp = tmp->suivant;
-            if(tmp->suivant != NULL)
+            tmp = (*debut)->suivant;
+            while((tmp->suivant != NULL) && ((tmp->donnees.ID != info->donnees.ID) || stricmp(tmp->donnees.titre , info->donnees.titre) || stricmp(tmp->donnees.auteur , info->donnees.auteur) || stricmp(tmp->donnees.editeur , info->donnees.editeur) || (tmp->donnees.ans_publication != info->donnees.ans_publication))) tmp = tmp->suivant;
+            if((tmp->donnees.ID == info->donnees.ID) && !stricmp(tmp->donnees.titre , info->donnees.titre) && !stricmp(tmp->donnees.auteur , info->donnees.auteur) && !stricmp(tmp->donnees.editeur , info->donnees.editeur) && (tmp->donnees.ans_publication == info->donnees.ans_publication))
             {
-                P = tmp->suivant;
-                tmp->suivant = P->suivant;
-                free(P);
-                P = NULL;
+                if(tmp->suivant != NULL) tmp->suivant->precedent = tmp->precedent;
+                tmp->precedent->suivant = tmp->suivant;
+                free(tmp);
+                tmp = NULL;
             }
             else puts("Ce livre n'exist pas !!!");
         }
@@ -94,20 +109,23 @@ void suprimer_livre(livre ** debut)
             printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile_1);
             exit(1);
         }
+
         tmp = (*debut);
+
         //fputs("ID \t Titre \t Auteur \t Editeur \t Ans Publication\n" , fp_1);
         while(tmp != NULL)
         {
-            fprintf(fp_1 , "%d \t %s \t %s \t\t  %s \t\t  %d\n" , (tmp->ID) , (tmp->titre) , (tmp->auteur) , (tmp->editeur) , (tmp->ans_publication));
+            fprintf(fp_1 , "%d \t %s \t %s \t\t  %s \t\t  %d\n" , (tmp->donnees.ID) , (tmp->donnees.titre) , (tmp->donnees.auteur) , (tmp->donnees.editeur) , (tmp->donnees.ans_publication));
             tmp = tmp->suivant;
         }
+
+        int m = fclose(fp_1);
+        if(m) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile);
+
         remove(nomFile);
         int n = rename(nomFile_1 , nomFile);
         if(!n) printf("la suppression des informations de livre s'effectue avec succee \n") ;
         else printf("la suppression des informations de livre s'effectue avec echoue \n") ;
-
-        int m = fclose(fp_1);
-        if(m) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile);
 }
 
 #endif // FS_H_INCLUDED
