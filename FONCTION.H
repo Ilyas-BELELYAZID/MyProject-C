@@ -735,11 +735,6 @@ void saiser_informations(info_livre **b)
 void ajouter_livre()
 {
         // ajout des livres :
-        fp = fopen(nomFile , "a+t");
-        if(fp == NULL) {
-            printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile);
-            exit(1);
-        }
         puts("Entrer les informations sur livre : \n");
         printf("Entrer id du livre : ") ; scanf("%d",&id);
         recherche_livre();
@@ -749,6 +744,12 @@ void ajouter_livre()
             info_livre *debut = (info_livre*)malloc(sizeof(info_livre));
             debut->ID = id;
             saiser_informations(&debut);
+             fp = fopen(nomFile , "a+t");
+            if(fp == NULL)
+            {
+                printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile);
+                exit(1);
+            }
             fprintf(fp , "%d \t %s \t %s \t  %s \t  %d\n" , (debut->ID) , (debut->titre) , (debut->auteur) , (debut->editeur) , (debut->ans_publication));
             printf("\nl'enregesretement des informations s'effectue avec succee \n") ;
 
