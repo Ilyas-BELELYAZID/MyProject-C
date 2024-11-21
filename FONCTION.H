@@ -229,48 +229,82 @@ void display_data() {
 
 
 void LOGIN2(){
-    head();
-    fp = fopen("liste d'administration.txt","r");
-    char password[30],pass[20];
     int found=0;
+    char line[100];
+    head();
+    fp = fopen("liste_inscription_eleve.txt", "r");
+    if (fp == NULL) {
+    printf("Error opening file.\n");
+    exit(1); // Ensure you handle the error appropriately
+}
+    char CIN[30];
+    char password[30];
 
     setcolor(9); // Set color for the borders
     gotoxy(65, 8);
-    printf("************************************\n");
+    printf("\n");
 
     gotoxy(65, 9);
     printf("-      LOGIN TO YOUR ACCOUNT       -\n");
 
     gotoxy(65, 10);
-    printf("************************************\n");
+    printf("\n");
     gotoxy(55,9);
     printf("----------");
     gotoxy(101,9);
     printf("----------");
     gotoxy(65,17);
-    printf("************************************");
+    printf("");
     setcolor(7); // Reset color for text input fields
 
     // Username prompt
-    gotoxy(65, 13);
-    printf("Password:");
+    gotoxy(65, 12);
+    printf("CIN: ");
+
+
+    // Password prompt
+    gotoxy(65, 15);
+    printf("Password: ");
+    gotoxy(75,12);
+    scanf("%s",CIN);
+    gotoxy(75,15);
     scanf("%s",password);
-    while(fscanf(fp,"%s",pass)!=NULL){
-        if(strcmp(password,pass)==0){
-        found=1;
-        break;
+    while (fgets(line, sizeof(line), fp)) {
+        if(strstr(line,CIN)!=NULL && strstr(line,password)!=NULL){
+            found=1;
+            break;
         }
     }
-            if(found==1){
+
+        if(found==1){
         gotoxy(70,22);
         setcolor(10);
-         printf("Login successful!\n");}
+         printf("Login successful!\n");
+         Sleep(3000);
+         }
         else
             printf("CIN or password incorrect");
-            setcolor(07);
+        switch (found) {
+        case 1:
+            system("cls");
+            espace_administration();
+            exit(0);
+        default:
+            printf("erreur");
+            exit(0);
+    }
+    switch (found) {
+        case 1:
+            system("cls");
+            espace_administration();
+            exit(0);
+        default:
+            printf("erreur");}
 
-    fclose(fp);}
 
+        setcolor(07);
+    fclose(fp);
+}
 
 
 void erreur_page(){
