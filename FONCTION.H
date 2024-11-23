@@ -758,10 +758,10 @@ void saiser_informations(info_livre **b)
         printf("Entrer id du livre : ") ;
         scanf("%d",&((*b)->ID) );
     }
-    printf("Entrer le titre du livre : ") ; scanf("%s",&((*b)->titre)) ;
-    printf("Entrer nom d'acteur du livre : ") ; scanf("%s",&((*b)->auteur)) ;
+    printf("Entrer le titre du livre : ") ; fflush(stdin); scanf("%s",&((*b)->titre)) ;
+    printf("Entrer nom d'acteur du livre : ") ; fflush(stdin); scanf("%s",&((*b)->auteur)) ;
     printf("Entrer l'ans du publication du livre : ") ; scanf("%d",&((*b)->ans_publication)) ;
-    printf("Entrer l'editeur du livre : ") ; scanf("%s",&((*b)->editeur)) ;
+    printf("Entrer l'editeur du livre : ") ; fflush(stdin); scanf("%s",&((*b)->editeur)) ;
 }
 
 
@@ -792,10 +792,8 @@ void ajouter_livre()
         }
         printf("Voulez-vous ajouter une autre livre (O/N) ? ");
         fflush(stdin);
-        scanf("%c", &c);
-        c = toupper(c);
-
-        if(c == 'O') ajouter_livre();
+        getc(c);
+        if(toupper(c) == 'O') ajouter_livre();
 }
 
 
@@ -904,10 +902,8 @@ void supprimer_livre()
         else printf("ce livre n'existe pas !!! \n");
         printf("\nVoulez-vous supprimer une autre livre (O/N) ? ");
         fflush(stdin);
-        scanf("%c", &c);
-        c = toupper(c);
-
-        if(c == 'O') supprimer_livre();
+        getc(c);
+        if(toupper(c) == 'O') supprimer_livre();
     }
 }
 
@@ -967,10 +963,8 @@ void modifier_livre()
         else printf("ce livre n'existe pas !!! \n");
         printf("\nVoulez-vous modifier une autre livre (O/N) ? ");
         fflush(stdin);
-        scanf("%c", &c);
-        c = toupper(c);
-
-        if(c == 'O') modifier_livre();
+        getc(c);
+        if(toupper(c) == 'O') modifier_livre();
     }
 }
 
