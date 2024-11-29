@@ -11,16 +11,13 @@
 #define M 20
 #define nomFile "liste_livre.txt"
 #define nomFile_1 "liste_livre_1.txt"
-#define nomFile_2 "liste_inscription_eleve.txt"
-#define nomFile_3 "liste_d'administration"
-#define nomFile_4 "test.txt"
 
 FILE* fp = NULL;
 FILE* fp_1 = NULL;
 
 char c;
 int choix, id, n, m;
-long pos = 0.0, hpos = 0.0;
+long pos = 0.0;
 
 
 typedef struct{
@@ -37,29 +34,11 @@ char password[30];
 
 typedef struct info_livre
 {
-    float prix_jour, prix_semaine ;
-    int ID , ans_publication , qte ;
+    int ID , ans_publication,qte ;
     char titre[N] , auteur[M] , editeur[N] ;
 }info_livre;
 
 info_livre *tmp = NULL;
-
-
-int isTextOnly(char* str)
-{
-    if(*str == '\0') return 1;
-    else if(!isalpha(*str) && !isspace(*str)) return 0;
-    return isTextOnly(str + 1);
-}
-
-
-int isTextPrint(char* str)
-{
-    if(*str == '\0') return 1;
-    else if(!isprint(*str)) return 0;
-    return isTextOnly(str + 1);
-}
-
 
 
 void setBackgroundColor(int bg) {
@@ -112,7 +91,7 @@ void sign_in1(){
     printf("****************************************************************************************************************************************************************************\n");
 
     user u;
-    fp = fopen(nomFile_2,"a");
+    fp = fopen("liste_inscription_eleve.txt","a");
     if (fp == NULL) {
         printf("Error opening file.\n");
         exit(0);
@@ -176,7 +155,7 @@ void LOGIN1(){
     int found=0;
     char line[100];
     head();
-    fp = fopen(nomFile_2, "r");
+    fp = fopen("liste_inscription_eleve.txt", "r");
     if (fp == NULL) {
     printf("Error opening file.\n");
     exit(1); // Ensure you handle the error appropriately
@@ -225,7 +204,7 @@ void LOGIN1(){
          printf("Login successful!\n");}
         else
             printf("CIN or password incorrect");
-            switch (found) {
+        switch (found) {
         case 1:
             system("cls");
             espace_etudiant();
@@ -240,8 +219,11 @@ void LOGIN1(){
 
 
 
+
+
 void LOGIN2(){
-    fp = fopen(nomFile_3,"r");
+    head();
+    fp = fopen("liste d'administration.txt","r");
     char password[30],pass[20];
     int found=0;
 
@@ -293,6 +275,7 @@ void LOGIN2(){
 
     fclose(fp);
     }
+
 
 
 void erreur_page(){
@@ -567,73 +550,73 @@ switch (n) {
 
     }
 }
+void affiche_livre(){
+   char line[100];
+   fp=fopen("liste_livre.txt","r");
+
+ while (fgets(line,sizeof(line),fp) != NULL ) {
+        printf(" %s",line);
+    }
+
+
+   fclose(fp);
+
+
+}
 
 //Mes traveaux situent ci-dessous (Ilyas)
 
 void afficher_menu_etu()
 {
     setcolor(9);
-    gotoxy(10,5);
+    gotoxy(45,5);
     puts("------------------ESPACE ETUDIANT------------------");
-    gotoxy(10,6);
+    gotoxy(45,6);
     printf("*\t1 \. Emprunter un livre                      *");
-    gotoxy(10,7);
+    gotoxy(45,7);
     printf("***************************************************");
-    gotoxy(10,8);
+    gotoxy(45,8);
     printf("*\t2 \. Rechercher un livre                     *");
-    gotoxy(10,9);
+    gotoxy(45,9);
     printf("***************************************************");
-    gotoxy(10,10);
+    gotoxy(45,10);
     printf("*\t3 \. Lister les livres disponibles           *");
-    gotoxy(10,11);
+    gotoxy(45,11);
     printf("***************************************************");
-    gotoxy(10,12);
+    gotoxy(45,12);
     printf("*\t0 \. Exit                                    *");
-    gotoxy(10,13);
+    gotoxy(45,13);
     puts("---------------------------------------------------");
-    gotoxy(0,14);
+    gotoxy(45,14);
 
-    printf("\nVeuillez entrer une meilleur choix (0-3): ");
+    printf("\nPlease select a valid option (0-3): ");
     scanf("%d", &choix);
 }
 
 
 void espace_etudiant()
-{
-    taille_head(&hpos);
-    Is_Head_In_FILE();
-    afficher_menu_etu();
+{    afficher_menu_etu();
     do
     {
     switch(choix)
     {
-        case 0 :
-            erreur_page();
-            break;
+        case 0 :erreur_page();
         case 1 : break;
         case 2 :
             recherche_livre();
-            if(pos == -2.0) puts("\nDesole!!! Actuellement, Il n'y a pas de livre !!!\n\tVoyez revenir ulterierement\n\tMERCI POUR VOTRE COMPREHENSION.");
+            if(pos == -2.0) printf("\nLa liste est vide !!!\n");
             else
             {
                 printf("Donner ID de livre : ");
-erreur_num7:
-                fflush(stdin);
-                n = scanf("%d", &id);
-                if((n != 1) || (id < 0))
-                {
-                    printf("Voyez saisir une valeur correcte (>0) : ");
-                    goto erreur_num7;
-                }
+                scanf("%d", &id);
                 recherche_livre();
-                if((pos != -1.0) && (pos != -2.0)) puts("Les informations du livre sont comme suit : ");
                 afficher_fpos();
-                getch();
             }
+            getch();
             break;
-        case 3 : break;
+        case 3 : affiche_livre();
         default :
-            puts("\nErreur!!! ");
+            printf("\nErreur! ");
             break;
     }
     getch();
@@ -642,7 +625,6 @@ erreur_num7:
     if(choix) afficher_menu_etu();
     }while(choix != 0);
 
-    getch();
 }
 
 
@@ -685,24 +667,21 @@ void afficher_menu_admini()
     puts("---------------------------------------------------");
     gotoxy(0,22);
 
-    printf("\nVeuillez entrer une meilleur choix (0-7): ");
+    printf("\nPlease select a valid option (0-7): ");
     scanf("%d", &choix);
 }
 
+
 void espace_administration()
-{
-    taille_head(&hpos);
-    Is_Head_In_FILE();
-    afficher_menu_admini();
+{    afficher_menu_etu();
     do
     {
     switch(choix)
     {
-        case 0 :
-            erreur_page();
-            break;
+        case 0 :erreur_page();
         case 1 :
             ajouter_livre();
+            puts("Merci Pour Votre Visite !!!");
             break;
 
         case 2 :
@@ -716,23 +695,15 @@ void espace_administration()
         case 5 : break;
         case 6 :
             recherche_livre();
-            if(pos == -2.0) puts("\nLa liste est vide !!!");
+            if(pos == -2.0) printf("\nLa liste est vide !!!\n");
             else
             {
                 printf("Donner ID de livre : ");
-erreur_num:
-                fflush(stdin);
-                n = scanf("%d", &id);
-                if((n != 1) || (id < 0))
-                {
-                    printf("Voyez saisir une valeur correcte (>0) : ");
-                    goto erreur_num;
-                }
+                scanf("%d", &id);
                 recherche_livre();
-                if((pos != -1.0) && (pos != -2.0)) puts("Les informations du livre sont comme suit : ");
                 afficher_fpos();
-                getch();
             }
+            getch();
             break;
         case 7 : break;
         default :
@@ -749,71 +720,6 @@ erreur_num:
 }
 
 
-void HEAD(FILE** fp)
-{
-    rewind(*fp);
-    fputs("\t\t\t\t\t\t\t\t\tLa Liste Des Livres\t\t\t\t\t\t\t\t\n" , (*fp));
-    fputs("══════╦════════════════╦══════════════╦════════════════╦═════════════╦═══════╦═════════════════════╦══════════════════════\n" , (*fp));
-    fputs("   ID   ║\t\tTITRE\t\t\t║\t\t AUTEUR   \t║\t\t EDITEUR \t\t║ ANS PUBLICATION ║ QUANTITE ║ PRIX POUR CHAQUE JOUR (MAD) ║  PRIX PLUS UNE SEMAINE (MAD)  \n" , (*fp));
-    fputs("══════╩════════════════╩══════════════╩════════════════╩═════════════╩═══════╩═════════════════════╩══════════════════════\n" , (*fp));
-}
-
-
-void taille_head(long* taille)
-{
-    fp = fopen(nomFile_4 , "w+t");
-    if(fp == NULL)
-    {
-        printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile_4);
-        exit(1);
-    }
-    HEAD(&fp);
-    (*taille) = ftell(fp);
-    n = fclose(fp);
-    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_4);
-    remove(nomFile_4);
-}
-
-
-
-void Is_Head_In_FILE()
-{
-    fp = fopen(nomFile , "r+t");
-    if(fp == NULL)
-    {
-        fp = fopen(nomFile , "w+t");
-        if(fp == NULL)
-        {
-            printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile);
-            exit(0);
-        }
-    }
-    tmp = (info_livre*) malloc (sizeof(info_livre));
-    n = fscanf(fp , "%d \t %s \t %s \t  %s \t  %d \t  %d \t  %f \t  %f\n" , &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication) , &(tmp->qte) , &(tmp->prix_jour) , &(tmp->prix_semaine));
-    if(n == -1 || n == 8) HEAD(&fp);
-    n = fclose(fp);
-    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile);
-}
-
-
-
-/*void espace_recherche_livre()
-{
-    printf("Donner ID de livre : ");
-erreur_num:
-    fflush(stdin);
-    n = scanf("%d", &id);
-    if((n != 1) || (id < 0))
-    {
-        printf("Voyez saisir une valeur correcte (>0) : ");
-        goto erreur_num;
-    }
-    recherche_livre();
-    if((pos != -1.0) && (pos != -2.0)) puts("Les informations du livre sont comme suit : ");
-    afficher_fpos();
-    getch();
-}*/
-
 void afficher_informations(info_livre *b)
 {
     printf("ID du livre : %d \n",b->ID);
@@ -821,9 +727,6 @@ void afficher_informations(info_livre *b)
     printf("Nom d'acteur du livre : %s \n",b->auteur) ;
     printf("L'ans du publication du livre : %d \n",b->ans_publication) ;
     printf("L'editeur du livre : %s \n",b->editeur) ;
-    printf("La quantite du livres en stock : %d \n",b->qte) ;
-    printf("Le prix de livre pour emprunter par jour (en MAD) : %.2f \n",b->prix_jour) ;
-    printf("Le prix de livre pour emprunter de plus une semaine (en MAD) : %.2f \n",b->prix_semaine) ;
 }
 
 
@@ -834,78 +737,12 @@ void saiser_informations(info_livre **b)
     if(!id)
     {
         printf("Entrer id du livre : ") ;
-erreur_num1:
-        fflush(stdin);
-        n = scanf("%d",&((*b)->ID));
-        if((n != 1) || (((*b)->ID) < 0))
-        {
-            printf("Voyez saisir une valeur correcte (>0) : ");
-            goto erreur_num1;
-        }
+        scanf("%d",&((*b)->ID) );
     }
-    printf("Entrer le titre du livre : ") ;
-erreur_print:
-    fflush(stdin);
-    scanf("%s",&((*b)->titre)) ;
-    if(!isTextPrint((*b)->titre))
-    {
-        printf("\n\t!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE\nVoyez saisir un titre valide : ");
-        goto erreur_print;
-    }
-    printf("Entrer nom d'acteur du livre : ") ;
-erreur_nom:
-    fflush(stdin);
-    scanf("%s",&((*b)->auteur)) ;
-    if(!isTextOnly((*b)->auteur))
-    {
-        printf("\n\t!!! N.B : Seul de CARACTERE et ESPACE\nVoyez saisir un nom valide : ");
-        goto erreur_nom;
-    }
-    printf("Entrer l'ans du publication du livre : ") ;
-erreur_num2:
-    fflush(stdin);
-    n = scanf("%d",&((*b)->ans_publication)) ;
-    if((n != 1) || (((*b)->ans_publication) < 0))
-    {
-        printf("Voyez saisir une annee correcte (>0) : ");
-        goto erreur_num2;
-    }
-    printf("Entrer l'editeur du livre : ") ;
-erreur_print1:
-    fflush(stdin);
-    scanf("%s",&((*b)->editeur)) ;
-    if(!isTextPrint((*b)->editeur))
-    {
-        printf("\n\t!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE\nVoyez saisir un editeur valide : ");
-        goto erreur_print1;
-    }
-    printf("Entrer la quantite du livres en stock : ") ;
-erreur_num3:
-    fflush(stdin);
-    n = scanf("%d",&((*b)->qte)) ;
-    if((n != 1) || (((*b)->qte) < 0))
-    {
-        printf("Voyez saisir une valeur correcte (>0) : ");
-        goto erreur_num3;
-    }
-    printf("Entrer le prix de livre pour emprunter par jour (en MAD) : ") ;
-erreur_flo:
-    fflush(stdin);
-    n = scanf("%f",&((*b)->prix_jour)) ;
-    if((n != 1) || (((*b)->prix_jour) < 0))
-    {
-        printf("Voyez saisir un prix correct (>0) : ");
-        goto erreur_flo;
-    }
-    printf("Entrer le prix de livre pour emprunter de plus une semaine (en MAD): ") ;
-erreur_flo1:
-    fflush(stdin);
-    n = scanf("%f",&((*b)->prix_semaine)) ;
-    if((n != 1) || (((*b)->prix_semaine) < 0))
-    {
-        printf("Voyez saisir un prix correct (>0) : ");
-        goto erreur_flo1;
-    }
+    printf("Entrer le titre du livre : ") ; scanf("%s",&((*b)->titre)) ;
+    printf("Entrer nom d'acteur du livre : ") ; scanf("%s",&((*b)->auteur)) ;
+    printf("Entrer l'ans du publication du livre : ") ; scanf("%d",&((*b)->ans_publication)) ;
+    printf("Entrer l'editeur du livre : ") ; scanf("%s",&((*b)->editeur)) ;
 }
 
 
@@ -915,13 +752,13 @@ void ajouter_livre()
         // ajout des livres :
         puts("Entrer les informations sur livre : \n");
         printf("Entrer id du livre : ") ;
-erreur_num4:
+erreur_num5:
         fflush(stdin);
         n = scanf("%d",&id);
         if((n != 1) || (id < 0))
         {
             printf("Voyez saisir une valeur correcte (>0): ");
-            goto erreur_num4;
+            goto erreur_num5;
         }
 
         recherche_livre();
@@ -937,8 +774,8 @@ erreur_num4:
                 printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile);
                 exit(1);
             }
-            fprintf(fp , "%d \t %s \t %s \t  %s \t  %d \t  %d \t  %.2f \t  %.2f\n" , (debut->ID) , (debut->titre) , (debut->auteur) , (debut->editeur) , (debut->ans_publication) , (debut->qte) , (debut->prix_jour) , (debut->prix_semaine));
-            printf("\nL'enregesretement des informations s'effectue avec succee \n") ;
+            fprintf(fp , "%d \t %s \t %s \t  %s \t  %d \t  %d\n" , (debut->ID) , (debut->titre) , (debut->auteur) , (debut->editeur) , (debut->ans_publication) , (debut->qte));
+            printf("\nl'enregesretement des informations s'effectue avec succee \n") ;
 
             n = fclose(fp);
             if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile);
@@ -955,8 +792,6 @@ erreur_alpha:
         else if(toupper(c) == 'O') ajouter_livre();
 }
 
-
-
 void afficher_fpos()
 {
     tmp = (info_livre*)malloc(sizeof(info_livre));
@@ -968,15 +803,16 @@ void afficher_fpos()
             printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile);
             exit(1);
         }
-        pos += hpos;
-        fseek(fp , pos , SEEK_SET);
-        fscanf(fp , "%d \t %s \t %s \t  %s \t  %d \t  %d \t  %f \t  %f\n" , &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication) , &(tmp->qte) , &(tmp->prix_jour) , &(tmp->prix_semaine));
+
+        fseek(fp , (int)pos , SEEK_SET);
+        fscanf(fp , "%d \t %s \t %s \t  %s \t  %d\n" , &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication));
+        puts("Les informations du livre sont comme suit : ");
         afficher_informations(tmp);
 
         n = fclose(fp);
         if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile);
     }
-    else if(pos == -1.0) printf("Ce livre n'existe pas !!! \n");
+    else if(pos == -1.0) printf("ce livre n'existe pas !!! \n");
     else printf("\nLa liste est vide !!!\n");
 
 }
@@ -991,18 +827,17 @@ void recherche_livre()
         printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile);
         exit(1);
     }
-    fseek(fp , hpos , SEEK_SET);
     n = 0;
     while(!feof(fp))
     {
         n++;
-        m = fscanf(fp , "%d \t %s \t %s \t  %s \t  %d \t  %d \t  %f \t  %f\n" , &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication) , &(tmp->qte) , &(tmp->prix_jour) , &(tmp->prix_semaine));
+        m = fscanf(fp , "%d \t %s \t %s \t  %s \t  %d\n" , &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication));
         if(id == tmp->ID) break;
     }
     if(id == tmp->ID)
     {
         pos = ftell(fp);
-        pos -= pos / n ;
+        pos -= pos / n;
     }
     else if((m == -1) && (n == 1)) pos = -2.0;
     else pos = -1.0;
@@ -1021,102 +856,13 @@ void supprimer_livre()
     else
     {
         printf("Donner ID de livre que vous souhaitez supprimer : ");
-erreur_num5:
-        fflush(stdin);
-        n = scanf("%d", &id);
-        if((n != 1) || (id < 0))
-        {
-            printf("Voyez saisir une valeur correcte (>0) : ");
-            goto erreur_num5;
-        }
-        recherche_livre();
-        if (pos == -1.0) printf("Ce livre n'existe pas !!! \n");
-        else
-        {
-            n = 1 ;
-            puts("Les informations du livre que vous voulez supprimer sont comme suit :\n");
-            afficher_fpos();
-            printf("Voulez-vous suiver cette operation (O/N) : ");
-erreur_alpha1:
-            fflush(stdin);
-            scanf(" %c", &c);
-            if(toupper(c) != 'O' && toupper(c) != 'N')
-            {
-                printf("Voyez saisir une choix correcte (O/N) : ");
-                goto erreur_alpha1;
-            }
-            else if(toupper(c) == 'O')
-            {
-                fp = fopen(nomFile , "r+t");
-                fp_1 = fopen(nomFile_1 , "w+t");
-                if(fp == NULL)
-                {
-                    printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile);
-                    exit(1);
-                }
-                if(fp_1 == NULL)
-                {
-                    printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile_1);
-                    exit(1);
-                }
-
-                tmp = (info_livre*)malloc(sizeof(info_livre));
-                fseek(fp , hpos , SEEK_SET);
-                HEAD(&fp_1);
-                while(!feof(fp))
-                {
-                    fscanf(fp , "%d \t %s \t %s \t  %s \t  %d \t  %d \t  %f \t  %f\n" , &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication) , &(tmp->qte) , &(tmp->prix_jour) , &(tmp->prix_semaine));
-                    if(id != tmp->ID) fprintf(fp_1 , "%d \t %s \t %s \t  %s \t  %d \t  %d \t  %.2f \t  %.2f\n" , (tmp->ID) , (tmp->titre) , (tmp->auteur) , (tmp->editeur) , (tmp->ans_publication) ,  (tmp->qte) , (tmp->prix_jour) , (tmp->prix_semaine));
-                }
-
-                n = fclose(fp);
-                if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile);
-
-                n = fclose(fp_1);
-                if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_1);
-
-                remove(nomFile);
-                n = rename(nomFile_1 , nomFile);
-            }
-            if(!n) printf("\nLa suppression des informations de livre de ID = %d s'effectue avec succee \n", id) ;
-            else printf("\nLa suppression des informations de livre de ID = %d s'effectue avec echoue \n", id) ;
-        }
-        printf("\nVoulez-vous supprimer une autre livre (O/N) ? ");
-erreur_alpha2:
-        fflush(stdin);
-        scanf(" %c", &c);
-        if(toupper(c) != 'O' && toupper(c) != 'N')
-        {
-            printf("Voyez saisir une choix correcte (O/N) : ");
-            goto erreur_alpha2;
-        }
-        else if(toupper(c) == 'O') supprimer_livre();
-    }
-}
-
-
-
-void modifier_livre()
-{
-    recherche_livre();
-    if(pos == -2.0) printf("\nLa liste est vide !!!\n");
-    else
-    {
-        printf("Donner ID de livre que vous souhaitez modifier ses informations : ");
-erreur_num6:
-        fflush(stdin);
-        n = scanf("%d", &id);
-        if((n != 1) || (id < 0))
-        {
-            printf("Voyez saisir une valeur correcte (>0) : ");
-            goto erreur_num6;
-        }
+        scanf("%d", &id);
         recherche_livre();
         if(pos != -1.0)
         {
             n = 1 ;
-            fp = fopen(nomFile , "r+t");
-            fp_1 = fopen(nomFile_1 , "w+t");
+            fp = fopen(nomFile , "rt");
+            fp_1 = fopen(nomFile_1 , "wt");
             if(fp == NULL)
             {
                 printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile);
@@ -1129,21 +875,12 @@ erreur_num6:
             }
 
             tmp = (info_livre*)malloc(sizeof(info_livre));
-            fseek(fp , hpos , SEEK_SET);
-            HEAD(&fp_1);
+
             while(!feof(fp))
             {
-                fscanf(fp , "%d \t %s \t %s \t  %s \t  %d \t  %d \t  %f \t  %f\n" , &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication) , &(tmp->qte) , &(tmp->prix_jour) , &(tmp->prix_semaine));
-                if(id != tmp->ID) fprintf(fp_1 , "%d \t %s \t %s \t  %s \t  %d \t  %d \t  %.2f \t  %.2f\n" , (tmp->ID) , (tmp->titre) , (tmp->auteur) , (tmp->editeur) , (tmp->ans_publication) , (tmp->qte) , (tmp->prix_jour) , (tmp->prix_semaine));
-                else
-                {
-                    puts("Les anciennes informations de ce livre sont comme suit : \n");
-                    afficher_informations(tmp);
-                }
+                fscanf(fp , "%d \t %s \t %s \t  %s \t  %d\n" , &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication));
+                if(id != tmp->ID) fprintf(fp_1 , "%d \t %s \t %s \t  %s \t  %d\n" , (tmp->ID) , (tmp->titre) , (tmp->auteur) , (tmp->editeur) , (tmp->ans_publication));
             }
-            puts("Donner les nouveaux informations de ce livre : \n");
-            saiser_informations(&tmp);
-            fprintf(fp_1 , "%d \t %s \t %s \t  %s \t  %d \t  %d \t  %.2f \t  %.2f\n" , (tmp->ID) , (tmp->titre) , (tmp->auteur) , (tmp->editeur) , (tmp->ans_publication) , (tmp->qte) , (tmp->prix_jour) , (tmp->prix_semaine));
 
             n = fclose(fp);
             if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile);
@@ -1153,24 +890,82 @@ erreur_num6:
 
             remove(nomFile);
             n = rename(nomFile_1 , nomFile);
-            if(!n) printf("\nLa modification des informations de livre de ID = %d s'effectue avec succee \n", id) ;
-            else printf("\nLa modification des informations de livre de ID = %d s'effectue avec echoue \n", id) ;
+            if(!n) printf("\nla suppression des informations de livre de ID = %d s'effectue avec succee \n", id) ;
+            else printf("\nla suppression des informations de livre de ID = %d s'effectue avec echoue \n", id) ;
         }
-        else printf("Ce livre n'existe pas !!! \n");
-        printf("\nVoulez-vous modifier une autre livre (O/N) ? ");
-erreur_alpha3:
+        else printf("ce livre n'existe pas !!! \n");
+        printf("\nVoulez-vous supprimer une autre livre (O/N) ? ");
         fflush(stdin);
-        scanf(" %c", &c);
-        if(toupper(c) != 'O' && toupper(c) != 'N')
+        scanf("%c", &c);
+        c = toupper(c);
+
+        if(c == 'O') supprimer_livre();
+    }
+}
+
+
+
+void modifier_livre()
+{
+    recherche_livre();
+    if(pos == -2.0) printf("\nLa liste est vide !!!\n");
+    else
+    {
+        printf("Donner ID de livre que vous souhaitez modifier ses informations : ");
+        scanf("%d", &id);
+        recherche_livre();
+        if(pos != -1.0)
         {
-            printf("Voyez saisir une choix correcte (O/N) : ");
-            goto erreur_alpha3;
+            n = 1 ;
+            fp = fopen(nomFile , "rt");
+            fp_1 = fopen(nomFile_1 , "wt");
+            if(fp == NULL)
+            {
+                printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile);
+                exit(1);
+            }
+            if(fp_1 == NULL)
+            {
+                printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile_1);
+                exit(1);
+            }
+
+            tmp = (info_livre*)malloc(sizeof(info_livre));
+            while(!feof(fp))
+            {
+                fscanf(fp , "%d \t %s \t %s \t  %s \t  %d\n" , &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication));
+                if(id != tmp->ID) fprintf(fp_1 , "%d \t %s \t %s \t  %s \t  %d\n" , (tmp->ID) , (tmp->titre) , (tmp->auteur) , (tmp->editeur) , (tmp->ans_publication));
+                else
+                {
+                    puts("les anciennes informations de ce livre sont comme suit : \n");
+                    afficher_informations(tmp);
+                }
+            }
+            puts("Donner les nouveaux informations de ce livre : \n");
+            saiser_informations(&tmp);
+            fprintf(fp_1 , "%d \t %s \t %s \t  %s \t  %d\n" , (tmp->ID) , (tmp->titre) , (tmp->auteur) , (tmp->editeur) , (tmp->ans_publication));
+
+            n = fclose(fp);
+            if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile);
+
+            n = fclose(fp_1);
+            if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_1);
+
+            remove(nomFile);
+            n = rename(nomFile_1 , nomFile);
+            if(!n) printf("\nla modification des informations de livre de ID = %d s'effectue avec succee \n", id) ;
+            else printf("\nla modification des informations de livre de ID = %d s'effectue avec echoue \n", id) ;
         }
-        else if(toupper(c) == 'O') modifier_livre();
+        else printf("ce livre n'existe pas !!! \n");
+        printf("\nVoulez-vous modifier une autre livre (O/N) ? ");
+        fflush(stdin);
+        scanf("%c", &c);
+        c = toupper(c);
+
+        if(c == 'O') modifier_livre();
     }
 }
 
 
 
 #endif // FUNCTION_H_INCLUDED
-
