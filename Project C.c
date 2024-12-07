@@ -9,6 +9,6 @@
 
 void main()
 {
-espace_administration();
+    homepage();
     getch();
 }

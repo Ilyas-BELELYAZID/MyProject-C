@@ -7,12 +7,14 @@
 #include<ctype.h>
 #include<conio.h>
 #include <time.h>
+#define L 170
 #define N 30
 #define M 20
+#define K 15
 #define nomFile "liste_livre.txt"
 #define nomFile_1 "liste_livre_1.txt"
 #define nomFile_2 "liste_inscription_eleve.txt"
-#define nomFile_3 "liste_d'administration"
+#define nomFile_3 "liste_d'administration.txt"
 #define nomFile_4 "test.txt"
 
 
@@ -20,20 +22,14 @@ FILE* fp = NULL;
 FILE* fp_1 = NULL;
 
 
-char c;
+char c, pass[N];
 int choix, id, n, m;
-long pos = 0.0, hpos = 0.0;
+long pos = 0.0;
 
 
-typedef struct{
-char nom[20];
-char prenom[20];
-char CNE[15];
-char CIN[15];
-char email[28];
-char adresse[30];
-char password[30];
-
+typedef struct
+{
+    char nom[M], prenom[M], CNE[K], CIN[K], email[N], adresse[N], password[N];
 }user;
 
 
@@ -60,7 +56,7 @@ int isTextPrint(char* str)
 {
     if(*str == '\0') return 1;
     else if(!isprint(*str)) return 0;
-    return isTextOnly(str + 1);
+    return isTextPrint(str + 1);
 }
 
 
@@ -95,205 +91,241 @@ void setcolor(int color) {
 }
 
 
-void head(){
+void head()
+{
     setcolor(9); // Set text color to bleau
+    printf("****************************************************************************************************************************************************************************");
+    gotoxy(65, 3);
+    printf("-\tBIENVENUE A LA BIBLIOTHEQUE DE L'ENSAH\t-\n\n");
     printf("****************************************************************************************************************************************************************************\n");
-    gotoxy(65, 2);
-    printf("-      WELCOME TO ENSAH LIBRARY    -\n");
-    gotoxy(0, 4);
-    printf("****************************************************************************************************************************************************************************\n");
-    setcolor(7);} // Reset text color to white
+    setcolor(7);
+} // Reset text color to white
 
 
-void sign_in1(){
-    setcolor(9); // Set text color to bleau
-    printf("****************************************************************************************************************************************************************************\n");
-    gotoxy(70, 2);
-    printf("-E S P A C E  D' E L E V E-");
-    gotoxy(0, 4);
-    printf("****************************************************************************************************************************************************************************\n");
-
+void sign_in1()
+{
     user u;
-    fp = fopen(nomFile_2,"a");
-    if (fp == NULL) {
-        printf("Error opening file.\n");
+    fp = fopen(nomFile_2,"at");
+    if (fp == NULL)
+    {
+        printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile_2);
         exit(0);
     }
-     setcolor(9); // Set color for the borders
+erreur_nom:
+    setcolor(9); // Set text color to bleau
+    printf("****************************************************************************************************************************************************************************");
+    gotoxy(70, 3);
+    printf("-E S P A C E  D' E L E V E-\n\n");
+    printf("****************************************************************************************************************************************************************************\n");
+    setcolor(9); // Set color for the borders
     gotoxy(65, 8);
-    printf("************************************\n");
-
-    gotoxy(65, 9);
-    printf("-             SIGN IN              -\n");
-
+    printf("**********************************************");
     gotoxy(65, 10);
-    printf("************************************\n");
-    gotoxy(55,9);
+    printf("-\t\tSE CONNECTER\t\t-");
+    gotoxy(65, 11);
+    printf("**********************************************");
+    gotoxy(55,10);
     printf("----------");
-    gotoxy(101,9);
+    gotoxy(101,10);
     printf("----------");
-    gotoxy(65,20);
-    printf("************************************");
+    gotoxy(65,21);
+    printf("**********************************************");
     setcolor(7); // Reset color for text input fields
-    gotoxy(65,12);
-    printf("enter votre nom:\n ");
     gotoxy(65,13);
-    printf("enter votre prenom:\n");
+    printf("Enter votre nom:\n");
     gotoxy(65,14);
-    printf("enter votre CIN:\n");
+    printf("Enter votre prenom:\n");
     gotoxy(65,15);
-    printf("enter votre massar:\n");
+    printf("Enter votre CIN:\n");
     gotoxy(65,16);
-    printf("enter votre email:\n");
+    printf("Enter votre CNE:\n");
     gotoxy(65,17);
-    printf("enter adresse :\n");
+    printf("Enter votre e-mail:\n");
     gotoxy(65,18);
-    printf("enter password :\n");
-    gotoxy(81,12);
+    printf("Enter adresse :\n");
+    gotoxy(65,19);
+    printf("Enter votre mot de passe :\n");
+    gotoxy(81,13);
+    fflush(stdin);
     scanf("%s",u.nom);
-    gotoxy(84,13);
+    if(!isTextOnly(u.nom))
+    {
+        gotoxy(60,23);
+        printf("\n\t!!! N.B : Seul de CARACTERE et ESPACE\nVoyez saisir un NOM valide");
+        Sleep(2000);
+        system("cls");
+        goto erreur_nom;
+    }
+    gotoxy(84,14);
+    fflush(stdin);
     scanf("%s",u.prenom);
-    gotoxy(81,14);
+    if(!isTextOnly(u.prenom))
+    {
+        gotoxy(60,23);
+        printf("\n\t!!! N.B : Seul de CARACTERE et ESPACE\nVoyez saisir un PRENOM valide");
+        Sleep(2000);
+        system("cls");
+        goto erreur_nom;
+    }
+    gotoxy(81,15);
+    fflush(stdin);
     scanf("%s",u.CIN);
-    gotoxy(84,15);
+    if(!isTextPrint(u.CIN))
+    {
+        gotoxy(60,23);
+        printf("\n\t!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE\nVoyez saisir une CIN valide");
+        Sleep(2000);
+        system("cls");
+        goto erreur_nom;
+    }
+    gotoxy(81,16);
+    fflush(stdin);
     scanf("%s",u.CNE);
-    gotoxy(83,16);
-    scanf("%s",u.email);
-    gotoxy(81,17);
-    getchar();
-    fgets(u.adresse,sizeof(u.adresse),stdin);
-    u.adresse[strcspn(u.adresse, "\n")] = '\0';
+    if(!isTextPrint(u.CNE))
+    {
+        gotoxy(60,23);
+        printf("\n\t!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE\nVoyez saisir une CNE valide");
+        Sleep(2000);
+        system("cls");
+        goto erreur_nom;
+    }
+    gotoxy(84,17);
+    fflush(stdin); scanf("%s",u.email);
     gotoxy(81,18);
-    scanf("%s",u.password);
-    fprintf(fp," %-15s|%-20s|%-15s|%-15s|%-28s|%-30s|%-30s\n",u.nom,u.prenom,u.CIN,u.CNE, u.email,u.adresse,u.password);
-    fclose(fp);
-    gotoxy(70,22);
+    fflush(stdin); fgets(u.adresse,sizeof(u.adresse),stdin);
+    u.adresse[strcspn(u.adresse, "\n")] = '\0'; //A questionner ??
+    gotoxy(91,19);
+    fflush(stdin); scanf("%s",u.password);
+    fprintf(fp," %-20s|%-20s|%-15s|%-15s|%-30s|%-30s|%-30s\n",u.nom,u.prenom,u.CIN,u.CNE, u.email,u.adresse,u.password);
+    n = fclose(fp);
+    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_2);
+    gotoxy(70,23);
     setcolor(10);
-    printf("YOU REGISTER SUCCESSFULLY!\n");
+    printf("VOUS VOUS ETES INSCRIT AVEC SUCCES!\n");
     setcolor(07);
 }
 
 
-void LOGIN1(){
-    int found=0;
-    char line[100];
+void LOGIN1()
+{
+    char line[L];
+    char CIN[N];
+    fp = fopen(nomFile_2, "rt");
+    if (fp == NULL)
+    {
+        printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile_2);
+        exit(1); // Ensure you handle the error appropriately
+    }
+erreur_print:
     head();
-    fp = fopen(nomFile_2, "r");
-    if (fp == NULL) {
-    printf("Error opening file.\n");
-    exit(1); // Ensure you handle the error appropriately
-}
-    char CIN[30];
-    char password[30];
-
     setcolor(9); // Set color for the borders
     gotoxy(65, 8);
-    printf("************************************\n");
-
-    gotoxy(65, 9);
-    printf("-      LOGIN TO YOUR ACCOUNT       -\n");
-
+    printf("******************************************");
     gotoxy(65, 10);
-    printf("************************************\n");
-    gotoxy(55,9);
-    printf("----------");
-    gotoxy(101,9);
-    printf("----------");
-    gotoxy(65,17);
-    printf("************************************");
-    setcolor(7); // Reset color for text input fields
-
-    // Username prompt
+    printf("-\tCONNEXION A VOTRE COMPTE\t-");
     gotoxy(65, 12);
+    printf("******************************************");
+    gotoxy(55,10);
+    printf("----------");
+    gotoxy(101,10);
+    printf("----------");
+    gotoxy(65,19);
+    printf("******************************************");
+    setcolor(7); // Reset color for text input fields
+    // Username prompt
+    gotoxy(65, 14);
     printf("CIN: ");
-
-
     // Password prompt
-    gotoxy(65, 15);
-    printf("Password: ");
-    gotoxy(75,12);
+    gotoxy(65, 17);
+    printf("Mot de passe: ");
+    gotoxy(70,14);
+    fflush(stdin);
     scanf("%s",CIN);
-    gotoxy(75,15);
-    scanf("%s",password);
-    while (fgets(line, sizeof(line), fp)) {
-        if(strstr(line,CIN)!=NULL && strstr(line,password)!=NULL){
-            found=1;
+    if(!isTextPrint(CIN))
+    {
+        gotoxy(60,21);
+        printf("\n\t!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE\nVoyez saisir une CIN valide");
+        Sleep(2000);
+        system("cls");
+        goto erreur_print;
+    }
+    gotoxy(79,17);
+    fflush(stdin); scanf("%s",pass);
+    m = 0;
+    while (fgets(line, sizeof(line), fp))
+    {
+        if(strstr(line,CIN) && strstr(line,pass))
+        {
+            m = 1;
             break;
         }
     }
-        if(found==1){
-        gotoxy(70,22);
-        setcolor(10);
-         printf("Login successful!\n");}
-        else
-            printf("CIN or password incorrect");
-            switch (found) {
-        case 1:
-            system("cls");
-            espace_etudiant();
-            exit(0);
-        default:
-            printf("erreur");}
-
-            setcolor(07);
-
-
-    fclose(fp);}
+    n = fclose(fp);
+    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_2);
+    gotoxy(70,22);
+    if(!m)
+    {
+        puts("CIN ou Mot de passe est incorrect");
+        Sleep(2500);
+        exit(1);
+    }
+    setcolor(10);
+    puts("Connexion reussie!");
+    Sleep(2500);
+    system("cls");
+    espace_etudiant();
+    setcolor(07);
+}
 
 
-void LOGIN2(){
-    fp = fopen(nomFile_3,"r");
-    char password[30],pass[20];
-    int found=0;
-
+void LOGIN2()
+{
+    char password[N];
+    fp = fopen(nomFile_3,"r+t");
     setcolor(9); // Set color for the borders
     gotoxy(65, 8);
-    printf("************************************\n");
-
-    gotoxy(65, 9);
-    printf("-      LOGIN TO YOUR ACCOUNT       -\n");
-
+    printf("***********************************************");
     gotoxy(65, 10);
-    printf("************************************\n");
-    gotoxy(55,9);
+    printf("-\tCONNECTEZ-VOUS A VOTRE COMPTE\t-");
+    gotoxy(65, 11);
+    printf("***********************************************");
+    gotoxy(55,10);
     printf("----------");
-    gotoxy(101,9);
+    gotoxy(101,10);
     printf("----------");
     gotoxy(65,17);
-    printf("************************************");
+    printf("***********************************************");
     setcolor(7); // Reset color for text input fields
-
     // Username prompt
-    gotoxy(65, 13);
-    printf("Password:");
-    scanf("%s",password);
-    while(fscanf(fp,"%s",pass)!=NULL){
-        if(strcmp(password,pass)==0){
-        found=1;
-        break;
+    gotoxy(65, 14);
+    printf("Mot de passe: ");
+    gotoxy(79, 14);
+    fflush(stdin); scanf("%s",password);
+    m = 0;
+    while(fscanf(fp ,"\t %s", pass))
+    {
+        if(!strcmp(password,pass))
+        {
+            m = 1;
+            break;
         }
     }
-            if(found==1){
-        gotoxy(70,22);
-        setcolor(10);
-         printf("Login successful!\n");
-                }
-
-        else
-            printf("CIN or password incorrect");
-
-            switch (found) {
-        case 1:
-            system("cls");
-            espace_administration();
-            exit(0);
-        default:
-            printf("erreur");}
-        setcolor(07);
-
-
-    fclose(fp);
+    n = fclose(fp);
+    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_3);
+    gotoxy(70,22);
+    if(!m)
+    {
+        puts("CIN ou Mot de passe est incorrect");
+        Sleep(2500);
+        exit(1);
     }
+    setcolor(10);
+    printf("Connexion reussie!\n");
+    Sleep(2500);
+    system("cls");
+    espace_administration();
+    setcolor(07);
+}
 
 
 void erreur_page(){
@@ -301,88 +333,81 @@ void erreur_page(){
     system("color F9");
     gotoxy(65, 12);
     printf("********************************************");
-    gotoxy(65, 13);
-    printf("                                            ");
-    gotoxy(62, 14);
-    printf("      consulter cette page ulterieurement !!");
-    gotoxy(65, 15);
-    printf("                                            ");
-    gotoxy(65, 16);
-    printf("                     MERCI...               ");
-    gotoxy(65, 17);
-    printf("                                            ");
+    gotoxy(71, 14);
+    printf("Consulter cette page ulterieurement !!");
+    gotoxy(87, 16);
+    printf("MERCI...");
     gotoxy(65, 18);
     printf("********************************************");
     gotoxy(0,27);
-            setcolor(07);
-            getch();
-                exit(0); // Exit the program
-    return 0;
+    setcolor(07);
+    Sleep(2500);
+    exit(0);
+    system("PAUSE"); // Exit the program
 }
 
 
-void login_sign_in1(){
-system("color 9");
-printf("\n\n\n\n");
-printf("****************************************************************************************************************************************************************************");
-printf("                                                                   -E S P A C E   D' E T U D I A N T -\n");
-printf("****************************************************************************************************************************************************************************\n\n\n\n");
-    int n;
-    while(1){
-    // Set color for the top border
-    setcolor(9); // Blue for the border
-    gotoxy(65, 9);
-    printf("***************************************\n");
-
-    // Set color for the login option
-    setcolor(9);
-    gotoxy(65, 10);
-    printf("|            ");
-    setcolor(7);
-    printf("1. Login                 ");
-    setcolor(9);
-    printf("|\n");
-
-    // Set color for the sign-in option
-    setcolor(9);
-    gotoxy(65, 12);
-    printf("|            ");
-    setcolor(7);
-    printf("2. Sign In               ");
-    setcolor(9);
-    printf("|\n");
-    // Set color for the exit option
-    setcolor(9);
-    gotoxy(65, 14);
-    printf("|            ");
-    setcolor(7);
-    printf("3. Exit                  ");
-    setcolor(9);
-    printf("|\n");
-    setcolor(9);
+void login_sign_in1()
+{
+    system("color 9");
+    printf("\n\n\n\n****************************************************************************************************************************************************************************");
+    printf("\t\t\t\t\t\t\t\t - E S P A C E   D' E T U D I A N T -");
+    printf("****************************************************************************************************************************************************************************\n\n\n\n");
+    while(1)
+    {
+        n = 0;
+        // Set color for the top border
+        setcolor(9); // Blue for the border
+        gotoxy(65, 9);
+        printf("***************************************");
+        // Set color for the login option
+        setcolor(9);
+        gotoxy(65, 11);
+        printf("|\t");
+        setcolor(7);
+        printf("1. Connexion                 ");
+        setcolor(9);
+        puts("|");
+        // Set color for the sign-in option
+        setcolor(9);
+        gotoxy(65, 13);
+        printf("|\t");
+        setcolor(7);
+        printf("2. Se connecter               ");
+        setcolor(9);
+        puts("|");
+        // Set color for the exit option
+        setcolor(9);
         gotoxy(65, 15);
+        printf("| \t");
+        setcolor(7);
+        printf("3. Quitter                  ");
+        setcolor(9);
+        puts("|");
+        setcolor(9);
+        gotoxy(65, 17);
         printf("***************************************\n");
-
-        setcolor(07);
-        gotoxy(57, 18);
-        setcolor(9);
-        printf("******************************************************\n");
+        setcolor(7);
         gotoxy(57, 19);
-        printf("|");
-        setcolor(7);
-        gotoxy(65, 19);
-        printf("Please select a valid option (1-3): ");
         setcolor(9);
-        gotoxy(110, 19);
-        printf("|");
-        gotoxy(57, 20);
         printf("******************************************************\n");
-        gotoxy(101, 19);
+        gotoxy(57, 20);
+        printf("|");
         setcolor(7);
-        scanf("%d", &n);
-        tarik:
-    // Read user input
-    switch (n) {
+        gotoxy(65, 20);
+        printf("Veuillez selectionner une option valide (1-3): ");
+        setcolor(9);
+        gotoxy(120, 20);
+        printf("|");
+        gotoxy(57, 21);
+        printf("******************************************************\n");
+        gotoxy(112, 20);
+tarik:
+        setcolor(7);
+        fflush(stdin); scanf("%d", &n);
+        // Read user input
+        switch (n)
+        {
             case 1:
                system("cls"); // Clear the screen
                LOGIN1(); // Call the login function
@@ -394,68 +419,62 @@ printf("************************************************************************
             case 3:
                 system("cls");
                 homepage();
-
-                exit(0); // Exit the program
            default:
-                    gotoxy(57, 22);
-                    setcolor(9);
-                    printf("******************************************************\n");
                     gotoxy(57, 23);
+                    setcolor(9);
+                    printf("**************************************************************************\n");
+                    gotoxy(57, 24);
                     printf("|");
                     setcolor(7);
-                    gotoxy(60, 23);
-                    printf("Invalid input.Please select a valid option (1-3): ");
+                    gotoxy(60, 24);
+                    printf("Entree invalide!!! Veuillez selectionner une option valide (1-3): ");
                     setcolor(9);
-                    gotoxy(110, 23);
-                    printf("|\n");
+                    gotoxy(140, 24);
+                    puts("|");
                     setcolor(9);
-                    gotoxy(57, 24);
-                    printf("******************************************************\n");
-                    gotoxy(109, 23);
-                    setcolor(7);
-                    scanf("%d",&n);
+                    gotoxy(57, 25);
+                    printf("**************************************************************************\n");
+                    gotoxy(131, 24);
                     goto tarik;
 
-    }
+        }
     }
 }
 
 
-void login_sign_in2(){
-system("color 9");
-printf("\n\n\n\n");
-printf("****************************************************************************************************************************************************************************");
-printf("                                                              -E S P A C E   D' A D M I N I S T R A T I O N-\n");
-printf("****************************************************************************************************************************************************************************\n\n\n\n");
-    int n;
-    while(1){
-    // Set color for the top border
-    setcolor(9); // Blue for Fthe border
-    gotoxy(65, 9);
-    printf("***************************************\n");
-
-    // Set color for the login option
-    setcolor(9);
-    gotoxy(65, 11);
-    printf("|            ");
-    setcolor(7);
-    printf("1. Login                 ");
-    setcolor(9);
-    printf("|\n");
-
-    // Set color for the sign-in option
-    setcolor(9);
-    gotoxy(65, 13);
-    printf("|            ");
-    setcolor(7);
-    printf("2. Exit                  ");
-    setcolor(9);
-    printf("|\n");
-    setcolor(9);
+void login_sign_in2()
+{
+    system("color 9");
+    printf("\n\n\n\n****************************************************************************************************************************************************************************");
+    printf("\t\t\t\t\t\t\t\t-E S P A C E   D' A D M I N I S T R A T I O N-");
+    printf("****************************************************************************************************************************************************************************\n\n\n\n");
+    while(1)
+    {
+        n = 0;
+        // Set color for the top border
+        setcolor(9); // Blue for the border
+        gotoxy(65, 9);
+        printf("***************************************");
+        // Set color for the login option
+        setcolor(9);
+        gotoxy(65, 11);
+        printf("|\t");
+        setcolor(7);
+        printf("1. Connexion                 ");
+        setcolor(9);
+        puts("|");
+        // Set color for the sign-in option
+        setcolor(9);
+        gotoxy(65, 13);
+        printf("|\t");
+        setcolor(7);
+        printf("2. Quitter                  ");
+        setcolor(9);
+        puts("|");
+        setcolor(9);
         gotoxy(65, 15);
         printf("***************************************\n");
-
-        setcolor(07);
+        setcolor(7);
         gotoxy(57, 18);
         setcolor(9);
         printf("******************************************************\n");
@@ -463,19 +482,19 @@ printf("************************************************************************
         printf("|");
         setcolor(7);
         gotoxy(65, 19);
-        printf("Please select a valid option (1-3): ");
+        printf("Veuillez selectionner une option valide (1-3): ");
         setcolor(9);
-        gotoxy(110, 19);
+        gotoxy(120, 19);
         printf("|");
         gotoxy(57, 20);
         printf("******************************************************\n");
-
-        gotoxy(101, 19);
+        gotoxy(112, 19);
+tarik:
         setcolor(7);
-        scanf("%d", &n);
-        tarik:
-    // Read user input
-    switch (n) {
+        fflush(stdin); scanf("%d", &n);
+        // Read user input
+        switch (n)
+        {
             case 1:
                system("cls"); // Clear the screen
                LOGIN2(); // Call the login function
@@ -483,87 +502,77 @@ printf("************************************************************************
             case 2:
                 system("cls");
                 homepage();
-
-                exit(0); // Exit the program
            default:
-                    gotoxy(57, 22);
-                    setcolor(9);
-                    printf("******************************************************\n");
                     gotoxy(57, 23);
+                    setcolor(9);
+                    printf("**************************************************************************\n");
+                    gotoxy(57, 24);
                     printf("|");
                     setcolor(7);
-                    gotoxy(60, 23);
-                    printf("Invalid input.Please select a valid option (1-3): ");
+                    gotoxy(60, 24);
+                    printf("Entree invalide!!! Veuillez selectionner une option valide (1-3): ");
                     setcolor(9);
-                    gotoxy(110, 23);
-                    printf("|\n");
+                    gotoxy(140, 24);
+                    puts("|");
                     setcolor(9);
-                    gotoxy(57, 24);
-                    printf("******************************************************\n");
-                    gotoxy(109, 23);
-                    setcolor(7);
-                    scanf("%d",&n);
+                    gotoxy(57, 25);
+                    printf("**************************************************************************\n");
+                    gotoxy(131, 24);
                     goto tarik;
-
-    }
+        }
     }
 }
 
 
-void homepage() {
-           int n;
-system("color 9");
-printf("\n\n\n\n");
-printf("****************************************************************************************************************************************************************************");
-printf("                                                                      *M E N U  P R I N C I P A L*\n");
-printf("****************************************************************************************************************************************************************************\n\n\n\n");
-gotoxy(18,10);
-printf("                              veuillez choisir l'espace que vous voulez souhaiter faire des operations :");
-
-gotoxy(50,15);
-printf("1-espace d'etudiants:                          2-espace administration :");
-gotoxy(35,19);
-printf("                                            3-QUITTER : \n\n\n");
-printf("****************************************************************************************************************************************************************************\n");
-gotoxy(68,25);
-printf("Veuillez entrer votre choix : ");
-    setcolor(07);
-    scanf("%d", &n);
-
+void homepage()
+{
+    n = 0;
+    system("color 9");
+    printf("\n\n\n\n****************************************************************************************************************************************************************************");
+    gotoxy(72, 3);
+    printf("-M E N U  P R I N C I P A L-\n");
+    printf("****************************************************************************************************************************************************************************\n\n\n\n");
+    gotoxy(48,10);
+    printf("Veuillez choisir l'espace que vous voulez souhaiter faire des operations :");
+    gotoxy(50,15);
+    printf("1-Espace Etudiants : \t\t\t 2-Espace Administration :");
+    gotoxy(79,19);
+    printf("3-QUITTER :\n\n\n");
+    printf("****************************************************************************************************************************************************************************\n");
+    gotoxy(68,25);
+    printf("Veuillez entrer votre choix : ");
 tarik:
-switch (n) {
-            case 1:
-               system("cls"); // Clear the screen
-              login_sign_in1(); // Call the login sign in function
-               return; // Exit the function after successful login
-            case 2:
-               system("cls"); // Clear the screen
-              login_sign_in2(); // Call the login sign in function
-               return; // Exit the function after successful login
-            case 3:
-                erreur_page();
-
-                exit(0); // Exit the program
-           default:
-                    gotoxy(57, 22);
-                    setcolor(9);
-                    printf("******************************************************\n");
-                    gotoxy(57, 23);
-                    printf("|");
-                    setcolor(7);
-                    gotoxy(60, 23);
-                    printf("Invalid input.Please select a valid option (1-3): ");
-                    setcolor(9);
-                    gotoxy(110, 23);
-                    printf("|\n");
-                    setcolor(9);
-                    gotoxy(57, 24);
-                    printf("******************************************************\n");
-                    gotoxy(109, 23);
-                    setcolor(7);
-                    scanf("%d",&n);
-                    goto tarik;
-
+    setcolor(07);
+    fflush(stdin); scanf("%d", &n);
+    switch (n)
+    {
+        case 1:
+            system("cls"); // Clear the screen
+            login_sign_in1(); // Call the login sign in function
+            return; // Exit the function after successful login
+        case 2:
+            system("cls"); // Clear the screen
+            login_sign_in2(); // Call the login sign in function
+            return; // Exit the function after successful login
+        case 3:
+            erreur_page();
+        default:
+            gotoxy(57, 22);
+            setcolor(9);
+            printf("**************************************************************************\n");
+            gotoxy(57, 23);
+            printf("|");
+            setcolor(7);
+            gotoxy(60, 23);
+            printf("Entree invalide!!! Veuillez selectionner une option valide (1-3): ");
+            setcolor(9);
+            gotoxy(140, 23);
+            puts("|");
+            setcolor(9);
+            gotoxy(57, 24);
+            printf("**************************************************************************\n");
+            gotoxy(131, 23);
+            goto tarik;
     }
 }
 
@@ -599,8 +608,7 @@ void afficher_menu_etu()
 
 void espace_etudiant()
 {
-    taille_head(&hpos);
-    Is_Head_In_FILE();
+    Is_Fichier_Livre();
     afficher_menu_etu();
     do
     {
@@ -675,8 +683,7 @@ void afficher_menu_admini()
 
 void espace_administration()
 {
-    taille_head(&hpos);
-    Is_Head_In_FILE();
+    Is_Fichier_Livre();
     afficher_menu_admini();
     do
     {
@@ -718,52 +725,6 @@ void espace_administration()
 }
 
 
-void HEAD(FILE** fp)
-{
-    rewind(*fp);
-    fputs("\t\t\t\t\t\t\t\t\tLa Liste Des Livres\t\t\t\t\t\t\t\t\n" , (*fp));
-    fputs("══════╦════════════════╦══════════════╦════════════════╦═════════════╦═══════╦═════════════════════╦══════════════════════\n" , (*fp));
-    fputs("   ID   ║\t\tTITRE\t\t\t║\t\t AUTEUR   \t║\t\t EDITEUR \t\t║ ANS PUBLICATION ║ QUANTITE ║ PRIX POUR CHAQUE JOUR (MAD) ║  PRIX PLUS UNE SEMAINE (MAD)  \n" , (*fp));
-    fputs("══════╩════════════════╩══════════════╩════════════════╩═════════════╩═══════╩═════════════════════╩══════════════════════\n" , (*fp));
-}
-
-
-void taille_head(long* taille)
-{
-    fp = fopen(nomFile_4 , "w+t");
-    if(fp == NULL)
-    {
-        printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile_4);
-        exit(1);
-    }
-    HEAD(&fp);
-    (*taille) = ftell(fp);
-    n = fclose(fp);
-    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_4);
-    remove(nomFile_4);
-}
-
-
-void Is_Head_In_FILE()
-{
-    fp = fopen(nomFile , "r+t");
-    if(fp == NULL)
-    {
-        fp = fopen(nomFile , "w+t");
-        if(fp == NULL)
-        {
-            printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile);
-            exit(0);
-        }
-    }
-    tmp = (info_livre*) malloc (sizeof(info_livre));
-    n = fscanf(fp , " %d  %s  %s  %s  %d  %d  %f  %f\n" , &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication) , &(tmp->qte) , &(tmp->prix_jour) , &(tmp->prix_semaine));
-    if(n == -1 || n == 8) HEAD(&fp);
-    n = fclose(fp);
-    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile);
-}
-
-
 void espace_recherche_livre()
 {
     printf("Donner ID de livre : ");
@@ -782,6 +743,23 @@ erreur_num:
 }
 
 
+void Is_Fichier_Livre()
+{
+    fp = fopen(nomFile , "r+t");
+    if(fp == NULL)
+    {
+        fp = fopen(nomFile , "w+t");
+        if(fp == NULL)
+        {
+            printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile);
+            exit(1);
+        }
+    }
+    n = fclose(fp);
+    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile);
+}
+
+
 void afficher_informations(info_livre *b)
 {
     printf("ID du livre : %d \n",b->ID);
@@ -797,7 +775,6 @@ void afficher_informations(info_livre *b)
 
 void saiser_informations(info_livre **b)
 {
-
     if(!id)
     {
         printf("Entrer id du livre : ") ;
@@ -811,22 +788,22 @@ erreur_num1:
         }
     }
     printf("Entrer le titre du livre : ") ;
-erreur_print:
+erreur_print1:
     fflush(stdin);
     scanf("%s",&((*b)->titre)) ;
     if(!isTextPrint((*b)->titre))
     {
         printf("\n\t!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE\nVoyez saisir un titre valide : ");
-        goto erreur_print;
+        goto erreur_print1;
     }
     printf("Entrer nom d'acteur du livre : ") ;
-erreur_nom:
+erreur_nom1:
     fflush(stdin);
     scanf("%s",&((*b)->auteur)) ;
     if(!isTextOnly((*b)->auteur))
     {
         printf("\n\t!!! N.B : Seul de CARACTERE et ESPACE\nVoyez saisir un nom valide : ");
-        goto erreur_nom;
+        goto erreur_nom1;
     }
     printf("Entrer l'ans du publication du livre : ") ;
 erreur_num2:
@@ -838,13 +815,13 @@ erreur_num2:
         goto erreur_num2;
     }
     printf("Entrer l'editeur du livre : ") ;
-erreur_print1:
+erreur_print2:
     fflush(stdin);
     scanf("%s",&((*b)->editeur)) ;
     if(!isTextPrint((*b)->editeur))
     {
         printf("\n\t!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE\nVoyez saisir un editeur valide : ");
-        goto erreur_print1;
+        goto erreur_print2;
     }
     printf("Entrer la quantite du livres en stock : ") ;
 erreur_num3:
@@ -943,7 +920,6 @@ void afficher_fpos()
             printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile);
             exit(1);
         }
-        pos += hpos ;
         fseek(fp , pos , SEEK_SET);
         fscanf(fp , " %d  %s  %s  %s  %d  %d  %f  %f\n" , &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication) , &(tmp->qte) , &(tmp->prix_jour) , &(tmp->prix_semaine));
         afficher_informations(tmp);
@@ -965,7 +941,6 @@ void info_livre_equ(info_livre *debut)
         printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile);
         exit(1);
     }
-    fseek(fp , hpos , SEEK_SET);
     n = 0;
     while(!feof(fp))
     {
@@ -975,7 +950,7 @@ void info_livre_equ(info_livre *debut)
     }
     if(!stricmp(debut->titre , tmp->titre) && !stricmp(debut->auteur , tmp->auteur) && !stricmp(debut->editeur , tmp->editeur) && (debut->ans_publication == tmp->ans_publication))
     {
-        pos = ftell(fp) - hpos;
+        pos = ftell(fp);
         pos -= pos / n ;
     }
     else if((m == -1) && (n == 1)) pos = -2.0;
@@ -994,7 +969,6 @@ void recherche_livre(){
         printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile);
         exit(1);
     }
-    fseek(fp , hpos , SEEK_SET);
     n = 0;
     while(!feof(fp))
     {
@@ -1004,7 +978,7 @@ void recherche_livre(){
     }
     if(id == tmp->ID)
     {
-        pos = ftell(fp) - hpos;
+        pos = ftell(fp);
         pos -= pos / n ;
     }
     else if((m == -1) && (n == 1)) pos = -2.0;
@@ -1063,8 +1037,6 @@ erreur_alpha1:
                 }
 
                 tmp = (info_livre*)malloc(sizeof(info_livre));
-                fseek(fp , hpos , SEEK_SET);
-                HEAD(&fp_1);
                 while(!feof(fp))
                 {
                     fscanf(fp , " %d  %s  %s  %s  %d  %d  %f  %f\n" , &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication) , &(tmp->qte) , &(tmp->prix_jour) , &(tmp->prix_semaine));
@@ -1130,8 +1102,6 @@ erreur_num6:
             }
 
             tmp = (info_livre*)malloc(sizeof(info_livre));
-            fseek(fp , hpos , SEEK_SET);
-            HEAD(&fp_1);
             while(!feof(fp))
             {
                 fscanf(fp , " %d  %s  %s  %s  %d  %d  %f  %f\n" , &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication) , &(tmp->qte) , &(tmp->prix_jour) , &(tmp->prix_semaine));
