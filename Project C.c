@@ -7,8 +7,11 @@
 #include <windows.h>
 #include "FONCTION.H"
 
-void main()
+int main()
 {
-    homepage();
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+    espace_administration();
     getch();
+    return 0;
 }
