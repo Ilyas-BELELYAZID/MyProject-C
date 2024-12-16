@@ -660,24 +660,26 @@ tarik:
 
 void afficher_livre(const char *nom)
 {
-    if((pos != -1.0) && (pos != -2.0))
+    if(pos == 1.0)
     {
-        fp = fopen(nom , "rt");
+        fp = fopen(nom , "r+t");
         if (fp == NULL)
         {
             printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nom);
             return;
         }
         tmp = (info_livre*) malloc (sizeof(info_livre));
-        fseek(fp , pos , SEEK_SET);
-        fscanf(fp , "%d|%[^|]|%[^|]|%[^|]|%d|%f|%f\n" , &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication) , &(tmp->qte) , &(tmp->prix_jour) , &(tmp->prix_semaine));
+        while(!feof(fp))
+        {
+            fscanf(fp , "%d|%[^|]|%[^|]|%[^|]|%d|%d|%f|%f\n" , &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication) , &(tmp->qte) , &(tmp->prix_jour) , &(tmp->prix_semaine));
+            if(id == (tmp->ID)) break;
+        }
         n = fclose(fp);
         if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nom);
         afficher_informations1(*tmp);
-        free(tmp);
     }
     else if(pos == -1.0) puts("Aucun livre correspond avec vos informations !!");
-    else puts("\nDesole!!! Actuellement, Il n'y a pas de livre en stock!!!\n\tVoyez revenir ulterierement\n\tMERCI POUR VOTRE COMPREHENSION.");
+    else puts("\nDésole!!! Actuellement, Il n'y a pas de livre en stock!!!\n\tVoyez revenir ulterierement\n\tMERCI POUR VOTRE COMPREHENSION.");
 }
 
 
@@ -698,11 +700,12 @@ void afficher_informations1(info_livre tmp)
 void affiche_livre(const char *fichier_source)
 {
     recherche_livre();
-    if(pos == -2.0) puts("Desole!!! Actuellement, Il n'y a pas de livre dans la bibliotheque !!!\n\tMerci de revenir ulterierement.");
+    if(pos == -2.0) puts("Désole!!! Actuellement, Il n'y a pas de livre dans la bibliothéque !!!\n\tMerci de revenir ulterierement.");
     else
     {
         n = 0;
         tmp = (info_livre*) malloc (sizeof(info_livre));
+        system("cls");
         printf("____________________________________________________________________________________________________________________________\n");
         gotoxy(30,35);
         printf("| ID         | Titre               | Auteur            | Éditeur            |  Année  | Prix/Jour | Prix Aprés une Semaine |\n");
@@ -714,7 +717,7 @@ void affiche_livre(const char *fichier_source)
             printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", fichier_source);
             return;
         }
-        while (fscanf(fp, "%d|%[^|]|%[^|]|%[^|]|%d|%f|%f\n", &(tmp->ID), &(tmp->titre), &(tmp->auteur), &(tmp->editeur), &(tmp->ans_publication), &(tmp->prix_jour), &(tmp->prix_semaine)) == 7)
+        while (fscanf(fp, "%d|%[^|]|%[^|]|%[^|]|%d|%d|%f|%f\n" , &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication) , &(tmp->qte) , &(tmp->prix_jour) , &(tmp->prix_semaine)) == 8)
         {
             gotoxy(30, 37 + n);
             printf("| %-10d | %-19s | %-17s | %-18s | %-7d | %-9.2f | %-22.2f |\n", (tmp->ID), (tmp->titre), (tmp->auteur), (tmp->editeur), (tmp->ans_publication), (tmp->prix_jour), (tmp->prix_semaine));
@@ -841,12 +844,11 @@ void espace_etudiant()
             break;
         case 2 :
             recherche_livre();
-            if(pos == -2.0) puts("\nDesole!!! Actuellement, Il n'y a pas de livre !!!\n\tVoyez revenir ulterierement\n\tMERCI POUR VOTRE COMPREHENSION.");
+            if(pos == -2.0) puts("\nDésole!!! Actuellement, Il n'y a pas de livre !!!\n\tVoyez revenir ulterierement\n\tMERCI POUR VOTRE COMPREHENSION.");
             else
             {
                 espace_recherche_livre();
                 afficher_livre(nomFile);
-                getch();
             }
             break;
         case 3 :
@@ -919,7 +921,6 @@ void espace_administration()
             break;
         case 1 :
             ajouter_livre();
-            puts("Merci Pour Votre Visite !!!");
             break;
 
         case 2 :
@@ -927,7 +928,6 @@ void espace_administration()
             break;
         case 3 :
             modifier_livre();
-            puts("Merci Pour Votre Visite !!!");
             break;
         case 4 :
             retourner_livre();
@@ -940,7 +940,6 @@ void espace_administration()
             {
                 espace_recherche_livre();
                 afficher_fpos();
-                getch();
             }
             break;
         case 7 :
@@ -1029,7 +1028,7 @@ erreur_num:
         temporaire = (info_livre_emprunter*) malloc (sizeof(info_livre_emprunter));
         // Charger le livre correspondant a l'ID
         recherche_livre();
-        if ((pos != -1.0) && (pos != -2.0))
+        if (pos == 1.0)
         {
             if(!(tmp->qte))
             {
@@ -1068,7 +1067,7 @@ erreur_alpha4:
                     int jour = 0, mois = 0, annee = 0;
                     while(((jour > 31) || (jour < 1)) || ((mois > 12) || (mois < 1)) || (annee < 1900))
                     {
-                        printf("Donnez la date de livraison du livre (jj / mm / aaaa) (N.B : la date doit egalement >= 2jours) : ");
+                        printf("Donnez la date de livraison du livre (jj / mm / aaaa) (N.B : la date doit également >= 2jours) : ");
 erreur_date:
                         scanf("%d\t %d\t %d", &jour, &mois, &annee);
                     }
@@ -1082,7 +1081,7 @@ erreur_date:
                     }
                     else
                     {
-                        printf("Voyer une date convenable (Date >= 2jours) : ");
+                        printf("Voyey entrer une date convenable (Date >= 2jours) : ");
                         goto erreur_date;
                     }
                     char *s1 = (char*) malloc (K * sizeof(char));
@@ -1133,15 +1132,14 @@ erreur_date:
                     if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_4);
                     puts("Votre emprunte a été effectué sans erreur!!");
                     Sleep(2000);
-                    printf("Vous recevez la livraison le jour : %s a %s (%s) , Jusqu'au : %s a %s (%s) .\n", temporaire->date_debut, s1, s2, temporaire->date_fin, s1, s2);
+                    printf("Vous recevez la livraison le jour : %s a %s (%s) , Jusqu'au : %s à %s (%s) .\n", temporaire->date_debut, s1, s2, temporaire->date_fin, s1, s2);
                 }
-                else puts("Merci de votre visite!!");
             }
-            else puts("\nL'etudiant(e) n'inscrit pas a la bibliotheque .");
+            else puts("\nL'étudiant(e) n'inscrit pas a la bibliotheque .");
         }
         else printf("Aucun livre trouvé avec l'ID %d.\n", id);
     }
-    else puts("\nDesole!!! Actuellement, Il n'y a pas de livre pour emprunter !!!\n\tVoyez revenir ulterierement\n\tMERCI POUR VOTRE COMPREHENSION.");
+    else puts("\nDésole!!! Actuellement, Il n'y a pas de livre pour emprunter !!!\n\tVoyez revenir ulterierement\n\tMERCI POUR VOTRE COMPREHENSION.");
 }
 
 
@@ -1154,12 +1152,12 @@ void liste_livre_emprunter()
         printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile_4);
         return ;
     }
-    printf("   ID  |            Titre           |        Acteur      |           Editeur          | Annee |     CIN    |     CNE    |  DateDebut |   DateFin \n");
+    printf("   ID  |            Titre           |        Acteur      |           Editeur          | Année |     CIN    |     CNE    |  DateDébut |   DateFin \n");
     printf("-------------------------------------------------------------------------------------------------------------------------------------------------\n");
-    while (fgets(line, sizeof(line), fp))
+    while (!feof(fp))
     {
+        fgets(line, sizeof(line), fp);
         printf("%s\n", line);
-        fflush(stdin);
     }
     n = fclose(fp);
     if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_4);
@@ -1276,7 +1274,7 @@ erreur_num2:
         goto erreur_num2;
     }
     recherche_livre();
-    if((pos != -1.0) && (pos != -2.0)) puts("Les informations du livre sont comme suit : ");
+    if(pos == 1.0) puts("Les informations du livre sont comme suit : ");
 }
 
 
@@ -1405,14 +1403,14 @@ erreur_num6:
         }
 
         recherche_livre();
-        if((pos != -1.0) && (pos != -2.0)) printf("\nERREUR!!! VOYEZ ENTRER UN AUTRE ID!!! Cette ID est deja remplie.\n");
+        if(pos == 1.0) printf("\nERREUR!!! VOYEZ ENTRER UN AUTRE ID!!! Cette ID est deja remplie.\n");
         else
         {
             info_livre *debut = (info_livre*)malloc(sizeof(info_livre));
             debut->ID = id;
             saiser_informations(&debut);
             info_livre_equ(debut);
-            if((pos != -1.0) && (pos != -2.0))
+            if(pos == 1.0)
             {
                 puts("\n\nS'il vous plait !!!\nVeuillez entrer un autre livre cette livre deja existe\nSes informations sont representent comme suit :\n");
                 afficher_fpos();
@@ -1449,7 +1447,7 @@ erreur_alpha:
 void afficher_fpos()
 {
     setcolor(7);
-    if((pos != -1.0) && (pos != -2.0))
+    if(pos == 1.0)
     {
         fp = fopen(nomFile , "r+t");
         if(fp == NULL)
@@ -1457,11 +1455,13 @@ void afficher_fpos()
             printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile);
             exit(1);
         }
-        fseek(fp , pos , SEEK_SET);
         tmp = (info_livre*)malloc(sizeof(info_livre));
-        fscanf(fp , "%d|%[^|]|%[^|]|%[^|]|%d|%d|%f|%f\n", &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication) , &(tmp->qte) , &(tmp->prix_jour) , &(tmp->prix_semaine));
+        while(!feof(fp))
+        {
+            fscanf(fp , "%d|%[^|]|%[^|]|%[^|]|%d|%d|%f|%f\n", &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication) , &(tmp->qte) , &(tmp->prix_jour) , &(tmp->prix_semaine));
+            if(id == tmp->ID) break;
+        }
         afficher_informations(*tmp);
-
         n = fclose(fp);
         if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile);
     }
@@ -1487,10 +1487,7 @@ void info_livre_equ(info_livre *debut)
         if(!stricmp(debut->titre , tmp->titre) && !stricmp(debut->auteur , tmp->auteur) && !stricmp(debut->editeur , tmp->editeur) && (debut->ans_publication == tmp->ans_publication)) break;
     }
     if(!stricmp(debut->titre , tmp->titre) && !stricmp(debut->auteur , tmp->auteur) && !stricmp(debut->editeur , tmp->editeur) && (debut->ans_publication == tmp->ans_publication))
-    {
-        pos = ftell(fp);
-        pos -= pos / n ;
-    }
+        pos = 1.0;
     else if((m == -1) && (n == 1)) pos = -2.0;
     else pos = -1.0;
 
@@ -1515,11 +1512,7 @@ void recherche_livre()
         m = fscanf(fp , "%d|%[^|]|%[^|]|%[^|]|%d|%d|%f|%f\n", &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication) , &(tmp->qte) , &(tmp->prix_jour) , &(tmp->prix_semaine));
         if(id == tmp->ID) break;
     }
-    if(id == tmp->ID)
-    {
-        pos = ftell(fp);
-        pos -= pos / n ;
-    }
+    if(id == tmp->ID) pos = 1.0;
     else if((m == -1) && (n == 1)) pos = -2.0;
     else pos = -1.0;
 
@@ -1622,7 +1615,7 @@ erreur_num8:
             goto erreur_num8;
         }
         recherche_livre();
-        if(pos != -1.0)
+        if(pos == 1.0)
         {
             n = 1 ;
             fp = fopen(nomFile , "r+t");
