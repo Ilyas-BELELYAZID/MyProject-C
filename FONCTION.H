@@ -16,10 +16,12 @@
 #define nomFile_2 "liste_inscription_eleve.dat"
 #define nomFile_3 "liste_d'administration.bin"
 #define nomFile_4 "liste_emprunter.txt"
+#define nomFile_5 "liste_Noire.dat"
 
 
 FILE* fp = NULL;
 FILE* fp_1 = NULL;
+FILE* fp_2 = NULL;
 
 
 char c, pass[N], line[L];
@@ -35,6 +37,13 @@ typedef struct user
 user u;
 user *u1 = NULL;
 
+typedef struct user_blocklist
+{
+    char nom[M], prenom[M], CNE[K], CIN[K], email[N], adresse[N];
+}user_blocklist;
+
+user_blocklist *u2 = NULL;
+
 typedef struct info_livre
 {
     float prix_jour, prix_semaine ;
@@ -47,7 +56,7 @@ info_livre *tmp = NULL;
 typedef struct info_livre_emprunter
 {
     info_livre *livre;
-    char CNE[K], CIN[K], date_debut[K], date_fin[K] ;
+    char email[N], adresse[N] , date_debut[K], date_fin[K] ;
 }info_livre_emprunter;
 
 info_livre_emprunter *temporaire = NULL;
@@ -685,7 +694,7 @@ void afficher_livre(const char *nom)
 
 void afficher_informations1(info_livre tmp)
 {
-    printf("\n============== Details du Livre ==============\n");
+    printf("\n============== Details du Livre ===============\n");
     printf("ID               : %d\n", tmp.ID);
     printf("Titre            : %s\n", tmp.titre);
     printf("Acteur           : %s\n", tmp.auteur);
@@ -830,6 +839,7 @@ void espace_etudiant()
     Is_Fichier_Livre(nomFile);
     Is_Fichier_Livre(nomFile_2);
     Is_Fichier_Livre(nomFile_4);
+    Is_Fichier_Livre(nomFile_5);
     afficher_menu_etu();
     do
     {
@@ -895,11 +905,13 @@ void afficher_menu_admini()
     gotoxy(50,27);
     printf("7-Lister les livres empruntes");
     gotoxy(107,27);
+    printf("8-Liste_Noire");
+    gotoxy(50,31);
     printf("0-Exit");
-    gotoxy(35,30);
+    gotoxy(35,33);
     puts("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    gotoxy(70,33);
-    printf("Veuillez entrer une meilleur choix (0-7): ");
+    gotoxy(70,36);
+    printf("Veuillez entrer une meilleur choix (0-8): ");
     scanf("%d", &choix);
 }
 
@@ -910,6 +922,7 @@ void espace_administration()
     Is_Fichier_Livre(nomFile);
     Is_Fichier_Livre(nomFile_2);
     Is_Fichier_Livre(nomFile_4);
+    Is_Fichier_Livre(nomFile_5);
     afficher_menu_admini();
     do
     {
@@ -932,7 +945,11 @@ void espace_administration()
         case 4 :
             retourner_livre();
             break;
-        case 5 : break;
+        case 5 :
+            recherche_livre();
+            if(pos != -2.0) statistique();
+            else puts("\nLa liste des livres est vide !!!");
+            break;
         case 6 :
             recherche_livre();
             if(pos == -2.0) puts("\nLa liste est vide !!!");
@@ -945,10 +962,13 @@ void espace_administration()
         case 7 :
             liste_livre_emprunter();
             break;
+        case 8 :
+            blocklist();
+            break;
         default :
             setcolor(4);
             gotoxy(62,34);
-            puts("Erreur!!! entrer un nombre valide entre (0-3):");
+            puts("Erreur!!! entrer un nombre valide entre (0-8):");
             sleep(2);
             gotoxy(65,35);
             puts("Appuyez sur une touche pour continuer...");
@@ -961,52 +981,6 @@ void espace_administration()
     }while(choix != 0);
 
     getch();
-}
-
-
-void saiser_informations_etudiant(info_livre_emprunter **tmp)
-{
-    printf("Enter la CIN    : ");
-erreur_print1:
-    fflush(stdin);
-    scanf("%s",&((*tmp)->CIN));
-    if(!isTextPrint((*tmp)->CIN))
-    {
-        printf("\n\t!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE\nVoyez saisir une CIN valide");
-        goto erreur_print1;
-    }
-    printf("Enter la CNE    : ");
-erreur_print2:
-    fflush(stdin);
-    scanf("%s",&((*tmp)->CNE));
-    if(!isTextPrint((*tmp)->CNE))
-    {
-        printf("\n\t!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE\nVoyez saisir une CNE valide");
-        goto erreur_print2;
-    }
-}
-
-
-int recherche_etudiant_user(info_livre_emprunter *tmp)
-{
-    fp = fopen(nomFile_2 , "r+t");
-    if(fp == NULL)
-    {
-        printf("\.\.\.\.\.\.\.\.\.\.Impossible d'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\n", nomFile_2);
-        exit(1);
-    }
-    m = 0;
-    while (fgets(line, sizeof(line), fp))
-    {
-        if(strstr(line , (tmp->CIN)) && strstr(line , (tmp->CNE)))
-        {
-            m = 1;
-            break;
-        }
-    }
-    n = fclose(fp);
-    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_2);
-    return m;
 }
 
 
@@ -1035,107 +1009,103 @@ erreur_num:
                 puts("Nous sommes désolés, mais nous n'avons pas ce livre en stock pour le moment\n");
                 return;
             }
-            saiser_informations_etudiant(&temporaire);
-            m = recherche_etudiant_user(temporaire);
-            if(m)
-            {
-                temporaire->livre = tmp ;
-                puts("Combien de jours voulez-vous d'emprunt ? (N.B : Ne dépasse pas 2 mois)");
+            strcpy((temporaire->email) , (u1->email));
+            strcpy((temporaire->adresse) , (u1->adresse));
+            temporaire->livre = tmp ;
+            puts("Combien de jours voulez-vous d'emprunt ? (N.B : Ne dépasse pas 2 mois)");
 erreur_num1:
-                fflush(stdin);
-                m = scanf("%d", &n);
-                if((m != 1) || (n <= 0) || (n > 60) )
-                {
-                    printf("Voyez saisir une valeur correcte (0<Jours<60) : ");
-                    goto erreur_num1;
-                }
-                // Calculer le cout
-                float total = (n < 7) ? tmp->prix_jour * n : tmp->prix_semaine;
-                if(n == 1) printf("Le coût total d'un seul jour est : %.2fDH\n", total);
-                else printf("Le coût total des %d jours est : %.2fDH\n", n, total);
-                printf("Voulez-vous suiver cette processus : ");
+            fflush(stdin);
+            m = scanf("%d", &n);
+            if((m != 1) || (n <= 0) || (n > 60) )
+            {
+                printf("Voyez saisir une valeur correcte (0<Jours<60) : ");
+                goto erreur_num1;
+            }
+            // Calculer le cout
+            float total = (n < 7) ? tmp->prix_jour * n : tmp->prix_semaine;
+            if(n == 1) printf("Le coût total d'un seul jour est : %.2fDH\n", total);
+            else printf("Le coût total des %d jours est : %.2fDH\n", n, total);
+            printf("Voulez-vous suiver cette processus : ");
 erreur_alpha4:
-                fflush(stdin);
-                scanf(" %c", &c);
-                if(toupper(c) != 'O' && toupper(c) != 'N')
+            fflush(stdin);
+            scanf(" %c", &c);
+            if(toupper(c) != 'O' && toupper(c) != 'N')
+            {
+                printf("Voyez saisir une choix correcte (O/N) : ");
+                goto erreur_alpha4;
+            }
+            else if(toupper(c) == 'O')
+            {
+                int jour = 0, mois = 0, annee = 0;
+                while(((jour > 31) || (jour < 1)) || ((mois > 12) || (mois < 1)) || (annee < 1900))
                 {
-                    printf("Voyez saisir une choix correcte (O/N) : ");
-                    goto erreur_alpha4;
-                }
-                else if(toupper(c) == 'O')
-                {
-                    int jour = 0, mois = 0, annee = 0;
-                    while(((jour > 31) || (jour < 1)) || ((mois > 12) || (mois < 1)) || (annee < 1900))
-                    {
-                        printf("Donnez la date de livraison du livre (jj / mm / aaaa) (N.B : la date doit également >= 2jours) : ");
+                    printf("Donnez la date de livraison du livre (jj / mm / aaaa) (N.B : la date doit également >= 2jours) : ");
 erreur_date:
-                        scanf("%d\t %d\t %d", &jour, &mois, &annee);
-                    }
-                    time_t now = time(NULL);
-                    struct tm *cur_time = localtime(&now);
-                    if((((cur_time->tm_mday) - jour < -1) && !((cur_time->tm_mon) - mois + 1) && !((cur_time->tm_year) - annee + 1900)) || ((cur_time->tm_year) - annee + 1900 < 0) || (((cur_time->tm_mon) - mois + 1 > 0) && ((cur_time->tm_year) - annee + 1900 < 0)))
+                    scanf("%d\t %d\t %d", &jour, &mois, &annee);
+                }
+                time_t now = time(NULL);
+                struct tm *cur_time = localtime(&now);
+                if((((cur_time->tm_mday) - jour < -1) && !((cur_time->tm_mon) - mois + 1) && !((cur_time->tm_year) - annee + 1900)) || ((cur_time->tm_year) - annee + 1900 < 0) || (((cur_time->tm_mon) - mois + 1 > 0) && ((cur_time->tm_year) - annee + 1900 < 0)))
+                {
+                    cur_time->tm_year = annee - 1900;
+                    cur_time->tm_mon = mois - 1;
+                    cur_time->tm_mday = jour;
+                }
+                else
+                {
+                    printf("Voyey entrer une date convenable (Date >= 2jours) : ");
+                    goto erreur_date;
+                }
+                char *s1 = (char*) malloc (K * sizeof(char));
+                strftime(s1 , K , "%H:%M" , cur_time);
+                char *s2 = (char*) malloc (M * sizeof(char));
+                strftime(s2 , M , "%Z" , cur_time);
+                strftime((temporaire->date_debut) , K , "%d %m %Y" , cur_time);
+                struct tm *cur_time1 = localtime(&now);
+                cur_time1->tm_year = annee - 1900;
+                cur_time1->tm_mon = mois - 1;
+                cur_time1->tm_mday = jour + n;
+                while(1)
+                {
+                    if((!(cur_time1->tm_mon) || (cur_time1->tm_mon == 2) || (cur_time1->tm_mon == 4) || (cur_time1->tm_mon == 6) || (cur_time1->tm_mon == 7) || (cur_time1->tm_mon == 9) || (cur_time1->tm_mon == 11)) && (cur_time1->tm_mday > 31))
                     {
-                        cur_time->tm_year = annee - 1900;
-                        cur_time->tm_mon = mois - 1;
-                        cur_time->tm_mday = jour;
+                        cur_time1->tm_mday -= 31;
+                        cur_time1->tm_mon += 1;
+                    }
+                    else if(((cur_time1->tm_mon == 3) || (cur_time1->tm_mon == 5) || (cur_time1->tm_mon == 8) || (cur_time1->tm_mon == 10)) && (cur_time1->tm_mday > 30))
+                    {
+                        cur_time1->tm_mday -= 30;
+                        cur_time1->tm_mon += 1;
                     }
                     else
                     {
-                        printf("Voyey entrer une date convenable (Date >= 2jours) : ");
-                        goto erreur_date;
+                        if((cur_time1->tm_mday > 29) && !((cur_time1->tm_year + 1900) % 4) && ((cur_time1->tm_mon) == 1)) cur_time1->tm_mday -= 29;
+                        else if((cur_time1->tm_mday > 28) && ((cur_time1->tm_year + 1900) % 4) && ((cur_time1->tm_mon) == 1)) cur_time1->tm_mday -= 28;
+                        else break;
+                        cur_time1->tm_mon += 1;
                     }
-                    char *s1 = (char*) malloc (K * sizeof(char));
-                    strftime(s1 , K , "%H:%M" , cur_time);
-                    char *s2 = (char*) malloc (M * sizeof(char));
-                    strftime(s2 , M , "%Z" , cur_time);
-                    strftime((temporaire->date_debut) , K , "%d %m %Y" , cur_time);
-                    struct tm *cur_time1 = localtime(&now);
-                    cur_time1->tm_year = annee - 1900;
-                    cur_time1->tm_mon = mois - 1;
-                    cur_time1->tm_mday = jour + n;
-                    while(1)
+                    if(cur_time1->tm_mon > 11)
                     {
-                        if((!(cur_time1->tm_mon) || (cur_time1->tm_mon == 2) || (cur_time1->tm_mon == 4) || (cur_time1->tm_mon == 6) || (cur_time1->tm_mon == 7) || (cur_time1->tm_mon == 9) || (cur_time1->tm_mon == 11)) && (cur_time1->tm_mday > 31))
-                        {
-                            cur_time1->tm_mday -= 31;
-                            cur_time1->tm_mon += 1;
-                        }
-                        else if(((cur_time1->tm_mon == 3) || (cur_time1->tm_mon == 5) || (cur_time1->tm_mon == 8) || (cur_time1->tm_mon == 10)) && (cur_time1->tm_mday > 30))
-                        {
-                            cur_time1->tm_mday -= 30;
-                            cur_time1->tm_mon += 1;
-                        }
-                        else
-                        {
-                            if((cur_time1->tm_mday > 29) && !((cur_time1->tm_year + 1900) % 4) && ((cur_time1->tm_mon) == 1)) cur_time1->tm_mday -= 29;
-                            else if((cur_time1->tm_mday > 28) && ((cur_time1->tm_year + 1900) % 4) && ((cur_time1->tm_mon) == 1)) cur_time1->tm_mday -= 28;
-                            else break;
-                            cur_time1->tm_mon += 1;
-                        }
-                        if(cur_time1->tm_mon > 11)
-                        {
-                            cur_time1->tm_mon -= 12;
-                            cur_time1->tm_year += 1;
-                        }
+                        cur_time1->tm_mon -= 12;
+                        cur_time1->tm_year += 1;
                     }
-                    strftime((temporaire->date_fin) , K , "%d %m %Y" , cur_time1);
-                    n = 0;
-                    copier_livres(nomFile , nomFile_1);
-                    fp = fopen(nomFile_4,"a+t");
-                    if(fp==NULL)
-                    {
-                        printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile_4);
-                        return;
-                    }
-                    fprintf(fp , "%-7d %-28s %-20s %-28s %-7d %-12s %-12s %-12s %-12s\n" , (temporaire->livre->ID) , (temporaire->livre->titre) , (temporaire->livre->auteur) , (temporaire->livre->editeur) , (temporaire->livre->ans_publication) , (temporaire->CIN), (temporaire->CNE), (temporaire->date_debut), (temporaire->date_fin));
-                    n = fclose(fp);
-                    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_4);
-                    puts("Votre emprunte a été effectué sans erreur!!");
-                    Sleep(2000);
-                    printf("Vous recevez la livraison le jour : %s a %s (%s) , Jusqu'au : %s à %s (%s) .\n", temporaire->date_debut, s1, s2, temporaire->date_fin, s1, s2);
                 }
+                strftime((temporaire->date_fin) , K , "%d %m %Y" , cur_time1);
+                n = 0;
+                copier_livres(nomFile , nomFile_1);
+                fp = fopen(nomFile_4,"a+t");
+                if(fp==NULL)
+                {
+                    printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile_4);
+                    return;
+                }
+                fprintf(fp , "%d|%s|%s|%s|%d|%s|%s|%s|%s\n" , (temporaire->livre->ID) , (temporaire->livre->titre) , (temporaire->livre->auteur) , (temporaire->livre->editeur) , (temporaire->livre->ans_publication) , (temporaire->email), (temporaire->adresse), (temporaire->date_debut), (temporaire->date_fin));
+                n = fclose(fp);
+                if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_4);
+                puts("Votre emprunte a été effectué sans erreur!!");
+                Sleep(2000);
+                printf("Vous recevez la livraison le jour : %s a %s (%s) , Jusqu'au : %s à %s (%s) sous l'adresse : %s .\n", temporaire->date_debut, s1, s2, temporaire->date_fin, s1, s2, temporaire->adresse);
             }
-            else puts("\nL'étudiant(e) n'inscrit pas a la bibliotheque .");
         }
         else printf("Aucun livre trouvé avec l'ID %d.\n", id);
     }
@@ -1152,13 +1122,9 @@ void liste_livre_emprunter()
         printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile_4);
         return ;
     }
-    printf("   ID  |            Titre           |        Acteur      |           Editeur          | Année |     CIN    |     CNE    |  DateDébut |   DateFin \n");
+    printf("   ID  |        Titre       |        Auteur      |       Editeur      | Ans |         Email        |        Adresse      | DateDébut |   DateFin \n");
     printf("-------------------------------------------------------------------------------------------------------------------------------------------------\n");
-    while (!feof(fp))
-    {
-        fgets(line, sizeof(line), fp);
-        printf("%s\n", line);
-    }
+    while (fgets(line, sizeof(line), fp)) printf("%s\n", line);
     n = fclose(fp);
     if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_4);
 }
@@ -1194,73 +1160,282 @@ void copier_livres(const char *fichier_source, const char *fichier_destination)
     rename(fichier_destination , fichier_source);
 }
 
-/*
+
 void statistique()
 {
-    int maxi = 0, mini = 0;
-    float maxi1 = 0.0, mini1 = 0.0;
-    int *tab_id_qte, *tab_id_ans, *tab_id_prix;
-    tab_id_qte = (int*) malloc (L * sizeof(int));
-    tab_id_ans = (int*) malloc (L * sizeof(int));
-    tab_id_prix = (int*) malloc (L * sizeof(int));
-    tmp = (info_livre*) malloc (sizeof(info_livre));
+    int maxi = 0, mini = 100000, fois = 0, moins_fois = 10000, nbre_fois = 0 ;
+    float maxi1 = 0.0, mini1 = 100000.0;
+
+
     fp = fopen(nomFile, "r+t");
-    fp_1 = fopen(nomFile_4, "r+t");
     if (fp == NULL) {
         printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile);
         return;
     }
-    if (fp_1 == NULL) {
-        printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile);
-        n = fclose(fp);
-        if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_4); // Fermer le fichier source avant de quitter
-        return;
-    }
-    printf("ÉÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ Statistique ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ»\n");
-    printf("º   Les livre(s) (a/ont) plus grand quantité (sont/est):           º\n");
-    while(!feof(fp))
+    tmp = (info_livre*) malloc (sizeof(info_livre));
+    m = 0;
+    while(fscanf(fp , "%d|%[^|]|%[^|]|%[^|]|%d|%d|%f|%f\n" , &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication) , &(tmp->qte) , &(tmp->prix_jour) , &(tmp->prix_semaine)) == 8)
     {
-        fscanf(fp , "%d|%[^|]|%[^|]|%[^|]|%d|%d|%f|%f\n" , &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication) , &(tmp->qte) , &(tmp->prix_jour) , &(tmp->prix_semaine));
-        if(maxi <= (tmp->qte))
-        {
-            maxi = (tmp->qte);
-        }
-        if(mini >= (tmp->qte)) mini = (tmp->qte);
-
-        if(maxi <= (tmp->ans_publication)) maxi = (tmp->ans_publication);
-
-        if(mini >= (tmp->ans_publication)) mini = (tmp->ans_publication);
-
-        if(maxi1 <= (tmp->prix_semaine)) maxi1 = (tmp->prix_semaine);
-
-        if(mini1 >= (tmp->prix_semaine)) mini1 = (tmp->prix_semaine);
-
+        if(tmp->qte) m += (tmp->qte);
+        if(maxi < (tmp->ans_publication)) maxi = (tmp->ans_publication);
+        if(mini > (tmp->ans_publication)) mini = (tmp->ans_publication);
+        if(maxi1 < (tmp->prix_semaine)) maxi1 = (tmp->prix_semaine);
+        if(mini1 > (tmp->prix_semaine)) mini1 = (tmp->prix_semaine);
     }
     n = fclose(fp);
     if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile);
+    fp_1 = fopen(nomFile_2, "r+t");
+    if (fp_1 == NULL) {
+        printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile_2);
+        return;
+    }
+    while (fgets(line , sizeof(line) , fp_1)) nbre_fois++;
     n = fclose(fp_1);
-    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_4);
+    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_2);
 
-
+    system("cls");
+    printf("╔═════════════════════════════════════════════════════════════════╣ Statistique ╠═════════════════════════════════════════════════════════════════╗\n");
+    printf("║   La quatité des livres existe au sein de la Bibiothèque ENSAH est : %-9d ;                                                                ║\n", m);
+    printf("║   Le nombre des utilisateurs de la Bibiothèque ENSAH sont : %-12d ;                                                                      ║\n", nbre_fois);
+    printf("║   Le(s) plus anciénne(s) livre(s) à la bibliothèque ENSAH (est/sont) de l'année %5d ;                                                         ║\n", mini);
+    printf("║   Le(s) plus nouveau(x) livre(s) à la bibliothèque ENSAH (est/sont) de l'année %5d ;                                                          ║\n", maxi);
+    printf("║   Le(s) plus chér(s) emprunté(s) livre(s) par semaine à la bibliothèque ENSAH (est/sont) de prix : %-6.2fDH ;                                   ║\n", maxi1);
+    printf("║   Le(s) moins chér(s) emprunté(s) livre(s) par semaine à la bibliothèque ENSAH (est/sont) de prix : %-6.2fDH .                                  ║\n", mini1);
+    printf("╚═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝\n");
 }
-*/
 
-/*
-void affiche_livre_emprunter()
+
+void espace_blocklist()
 {
     setcolor(9);
-    char line[L];
-    fp = fopen(nomFile_4,"r+t");
+    gotoxy(25,5);
+    puts("------------------ESPACE LISTE-NOIR----------------");
+    gotoxy(25,6);
+    printf("***************************************************");
+    gotoxy(25,7);
+    printf("*\t1 \. Ajouter a la liste-noir                *");
+    gotoxy(25,8);
+    printf("***************************************************");
+    gotoxy(25,9);
+    printf("*\t2 \. Supprimer sur la liste-noir            *");
+    gotoxy(25,10);
+    printf("***************************************************");
+    gotoxy(25,11);
+    printf("*\t0 \. Exit                                   *");
+    gotoxy(25,12);
+    puts("---------------------------------------------------");
+    gotoxy(25,13);
+
+    printf("\nVeuillez entrer une meilleur choix (0-2): ");
+    scanf("%d", &choix);
+}
+
+
+void blocklist()
+{
+    system("cls");
+    espace_blocklist();
+    do
+    {
+    switch(choix)
+    {
+        case 0 :
+            system("cls");
+            espace_administration();
+            break;
+        case 1 :
+            ajouter_etudiant();
+            break;
+        case 2 :
+            espace_supprimer_etudiant();
+            break;
+        default :
+            puts("\nErreur!!! ");
+            break;
+    }
+    getch();
+    system("cls");
+
+    if(choix) espace_blocklist();
+    }while(choix != 0);
+    getch();
+}
+
+
+int recherche_etudiant_blocklist(user_blocklist *tmp)
+{
+    fp = fopen(nomFile_5 , "r+t");
     if(fp == NULL)
     {
-        printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile_4);
+        printf("\.\.\.\.\.\.\.\.\.\.Impossible d'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\n", nomFile_5);
         exit(1);
     }
-    while (fgets(line, sizeof(line), fp)) printf("%s", line);
+    while(fgets(line , sizeof(line) , fp))
+    {
+        if(strstr(line , (tmp->nom)) && strstr(line, (tmp->prenom)) && strstr(line , (tmp->CIN)) && strstr(line , (tmp->CNE)) && strstr(line , (tmp->email)) && strstr(line , (tmp->adresse)))
+        {
+            n = fclose(fp);
+            if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_5);
+            return 1;
+        }
+    }
     n = fclose(fp);
-    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_4);
+    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_5);
+    return 0;
 }
-*/
+
+
+void ajouter_etudiant()
+{
+    u2 = (user_blocklist*) malloc (sizeof(user_blocklist));
+    saiser_informations_etudiant_blocklist(&u2);
+    if(recherche_etudiant_blocklist(u2)) printf("L'etudiant(e) %s %s est se mettre deja dans la liste-noir .\n", u2->prenom, u2->nom);
+    else
+    {
+        fp = fopen(nomFile_5 , "a+t");
+        if(fp == NULL)
+        {
+            printf("\.\.\.\.\.\.\.\.\.\.Impossible d'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\n", nomFile_5);
+            exit(1);
+        }
+        fprintf(fp ,"%s|%s|%s|%s|%s|%s\n", (u2->nom), (u2->prenom), (u2->CIN), (u2->CNE), (u2->email), (u2->adresse));
+        n = fclose(fp);
+        if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_5);
+    }
+    printf("\n\n\nVoulez-vous ajouter un(e) autre etudiant(e) dans la liste-noir (O/N) ? ");
+erreur_alpha6:
+    fflush(stdin);
+    scanf(" %c", &c);
+    if(toupper(c) != 'O' && toupper(c) != 'N')
+    {
+        printf("Voyez saisir une choix correcte (O/N) : ");
+        goto erreur_alpha6;
+    }
+    else if(toupper(c) == 'O')
+    {
+        system("cls");
+        ajouter_etudiant();
+    }
+}
+
+
+void supprimer_etudiant_blocklist(user_blocklist *tmp)
+{
+    if(!recherche_etudiant_blocklist(tmp)) printf("L'etudiant(e) %s %s n'existe pas dans la liste-noir .\n", tmp->prenom, tmp->nom);
+    else
+    {
+        n = 1;
+        puts("Les informations d'un(e) etudiant(e) que vous voulez supprimer sont comme suit :\n");
+        afficher_informations_etudiant_blocklist(tmp);
+        printf("Voulez-vous suiver cette operation (O/N) : ");
+erreur_alpha7:
+        fflush(stdin);
+        scanf(" %c", &c);
+        if(toupper(c) != 'O' && toupper(c) != 'N')
+        {
+            printf("Voyez saisir une choix correcte (O/N) : ");
+            goto erreur_alpha7;
+        }
+        else if(toupper(c) == 'O')
+        {
+            fp = fopen(nomFile_5 , "r+t");
+            fp_1 = fopen(nomFile_1 , "a+t");
+            if(fp == NULL)
+            {
+                printf("\.\.\.\.\.\.\.\.\.\.Impossible d'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\n", nomFile_5);
+                exit(1);
+            }
+            if(fp_1 == NULL)
+            {
+                printf("\.\.\.\.\.\.\.\.\.\.Impossible d'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\n", nomFile_1);
+                n = fclose(fp);
+                if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_5);
+                exit(1);
+            }
+            while(fgets(line , sizeof(line) , fp))
+            {
+                if(!strstr(line , (tmp->nom)) || !strstr(line, (tmp->prenom)) || !strstr(line , (tmp->CIN)) || !strstr(line , (tmp->CNE)) || !strstr(line , (tmp->email)) || !strstr(line , (tmp->adresse)))
+                    fprintf(fp_1 ,"%s|%s|%s|%s|%s|%s\n", (tmp->nom), (tmp->prenom), (tmp->CIN), (tmp->CNE), (tmp->email), (tmp->adresse));
+            }
+            n = fclose(fp);
+            if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_5);
+            n = fclose(fp_1);
+            if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_1);
+            remove(nomFile_5);
+            n = rename(nomFile_1 , nomFile_5);
+        }
+        if(!n) printf("\nLa suppression d'etudiant(e) : %s %s, dont (il/elle) exist(e) dans la liste-noir s'effectue avec succee \n", tmp->prenom, tmp->nom) ;
+        else printf("\nLa suppression d'etudiant(e) : %s %s, dont (il/elle) existe(e) dans la liste-noir s'effectue avec echoue \n", tmp->prenom, tmp->nom) ;
+    }
+}
+
+
+void espace_supprimer_etudiant()
+{
+        puts("Donnez les informations d'etudiant(e) que vous-voulez supprimer : \n");
+        u2 = (user_blocklist*) malloc (sizeof(user_blocklist));
+        fflush(stdin);
+        saiser_informations_etudiant_blocklist(&u2);
+        supprimer_etudiant_blocklist(u2);
+}
+
+
+void saiser_informations_etudiant_blocklist(user_blocklist **u)
+{
+    fflush(stdin);
+    printf("Enter le nom    : ");
+erreur_nom4:
+    fflush(stdin);
+    scanf("%[^\n]",&((*u)->nom));
+    if(!isTextOnly((*u)->nom))
+    {
+        printf("\n\t!!! N.B : Seul de CARACTERE et ESPACE\nVoyez saisir un NOM valide");
+        goto erreur_nom4;
+    }
+    printf("Enter le prenom : ");
+erreur_nom5:
+    fflush(stdin);
+    scanf("%[^\n]",&((*u)->prenom));
+    if(!isTextOnly((*u)->prenom))
+    {
+        printf("\n\t!!! N.B : Seul de CARACTERE et ESPACE\nVoyez saisir un PRENOM valide");
+        goto erreur_nom5;
+    }
+    printf("Enter la CIN    : ");
+erreur_print1:
+    fflush(stdin);
+    scanf("%s",&((*u)->CIN));
+    if(!isTextPrint((*u)->CIN))
+    {
+        printf("\n\t!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE\nVoyez saisir une CIN valide");
+        goto erreur_print1;
+    }
+    printf("Enter la CNE    : ");
+erreur_print2:
+    fflush(stdin);
+    scanf("%s",&((*u)->CNE));
+    if(!isTextPrint((*u)->CNE))
+    {
+        printf("\n\t!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE\nVoyez saisir une CNE valide");
+        goto erreur_print2;
+    }
+    printf("Enter le e-mail : "); fflush(stdin); scanf("%s",&((*u)->email));
+    printf("Enter l'adresse : "); fflush(stdin); scanf("%[^\n]",&((*u)->adresse));
+}
+
+
+void afficher_informations_etudiant_blocklist(user_blocklist *tmp)
+{
+    printf("\n============== Details de l'Etudiant(e) ==============\n");
+    printf("Nom         : %s\n", tmp->nom);
+    printf("Prenom      : %s\n", tmp->prenom);
+    printf("CIN         : %s\n", tmp->CIN);
+    printf("CNE         : %s\n", tmp->CNE);
+    printf("E-mail      : %s\n", tmp->email);
+    printf("Adresse     : %s\n", tmp->adresse);
+    printf("========================================================\n");
+}
+
 
 void espace_recherche_livre()
 {
