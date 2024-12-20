@@ -266,7 +266,24 @@ erreur_nom:
     u.adresse[strcspn(u.adresse, "\n")] = '\0'; //A questionner ??
     gotoxy(91,19);
     fflush(stdin); scanf("%s",u.password);
-    if(!recherche_etudiant_user_blocklist(&u))
+    fp_1 = fopen(nomFile_5 , "r+t");
+    if(fp_1 == NULL)
+    {
+        printf("\.\.\.\.\.\.\.\.\.\.Impossible d'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\n", nomFile_5);
+        exit(1);
+    }
+    m = 0;
+    while (fgets(line, sizeof(line), fp_1))
+    {
+        if(strstr(line , (u.CIN)) && strstr(line , (u.CNE)))
+        {
+            m = 1;
+            break;
+        }
+    }
+    n = fclose(fp_1);
+    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_5);
+    if(!m)
     {
         fprintf(fp,"%s|%s|%s|%s|%s|%s|%s\n",u.nom,u.prenom,u.CIN,u.CNE, u.email,u.adresse,u.password);
         gotoxy(70,23);
@@ -1203,28 +1220,6 @@ int recherche_etudiant_blocklist(user_blocklist *tmp)
 }
 
 
-int recherche_etudiant_user_blocklist(user *tmp)
-{
-    fp = fopen(nomFile_5 , "r+t");
-    if(fp == NULL)
-    {
-        printf("\.\.\.\.\.\.\.\.\.\.Impossible d'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\n", nomFile_5);
-        exit(1);
-    }
-    m = 0;
-    while (fgets(line, sizeof(line), fp))
-    {
-        if(strstr(line , (tmp->CIN)) && strstr(line , (tmp->CNE)))
-        {
-            m = 1;
-            break;
-        }
-    }
-    n = fclose(fp);
-    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_5);
-    return m;
-}
-
 
 void supprimer_etudiant(user_blocklist *u3)
 {
@@ -1353,6 +1348,9 @@ void espace_supprimer_etudiant()
         fflush(stdin);
         saiser_informations_etudiant_blocklist(&u2);
         supprimer_etudiant_blocklist(u2);
+        Sleep(2000);
+        system("cls");
+        espace_administration();
 }
 
 
