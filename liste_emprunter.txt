@@ -1,0 +1,8 @@
+ 1      game of throne               George R. R. Martin  Bantam                 1996    efze            ergt                   28 12 2024   07 01 2025  
+ 5      the great gatsby             F. Scott Fitzgerald  Scribner               1925    fttrh           ghg                    28 12 2024   07 01 2025  
+ 5      the great gatsby             F. Scott Fitzgerald  Scribner               1925    fttrh           ghg                    19 12 2024   24 12 2024  
+ 4      the hobbit                   J.R.R. Tolkien       HarperCollins          1937    tarik@          fes sdfg               25 12 2024   06 01 2025
+ 6      1984                         George Orwell        Secker & Warburg       1949    tarik@          fes sdfg               24 12 2024   05 01 2025
+ 5      the great gatsby             F. Scott Fitzgerald  Scribner               1925    tarik@          fes sdfg               25 12 2024   24 01 2025
+ 5      the great gatsby             F. Scott Fitzgerald  Scribner               1925    tarik@          fes sdfg               23 12 2024   10 01 2025
+ 6      1984                         George Orwell        Secker & Warburg       1949    tarik@          fes sdfg               23 12 2024   02 01 2025

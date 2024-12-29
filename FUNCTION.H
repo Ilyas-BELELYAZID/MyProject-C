@@ -17,24 +17,32 @@
 #define nomFile_3 "liste_d'administration.bin"
 #define nomFile_4 "liste_emprunter.txt"
 #define nomFile_5 "liste_Noire.dat"
-#define RESET   "\033[0m"
-#define BOLD    "\033[1m"
-#define YELLOW  "\033[33m"
-#define GREEN   "\033[32m"
-#define WHITE   "\033[37m"
-#define RED "\033[31m"
-
 
 FILE* fp = NULL;
 FILE* fp_1 = NULL;
 FILE* fp_2 = NULL;
+typedef struct user_blocklist
+{
+    char nom[M], prenom[M], CNE[K], CIN[K], email[N], adresse[N];
+}user_blocklist;
 
+user_blocklist *u2 = NULL;
 
 char c, pass[N], line[L];
 int choix, id, n, m;
 long pos = 0.0 ;
+void setBackgroundColor(int color) {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
+    WORD savedAttributes;
 
+    // Obtenez les attributs actuels
+    GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
+    savedAttributes = consoleInfo.wAttributes;
 
+    // Appliquez la nouvelle couleur pour l'arrière-plan
+    SetConsoleTextAttribute(hConsole, (savedAttributes & 0x0F) | (color << 4));
+}
 typedef struct user
 {
     char nom[M], prenom[M], CNE[K], CIN[K], email[N], adresse[N], password[N];
@@ -42,13 +50,6 @@ typedef struct user
 
 user u;
 user *u1 = NULL;
-
-typedef struct user_blocklist
-{
-    char nom[M], prenom[M], CNE[K], CIN[K], email[N], adresse[N];
-}user_blocklist;
-
-user_blocklist *u2 = NULL;
 
 typedef struct info_livre
 {
@@ -117,25 +118,6 @@ void masquer_mot_de_passe(char *password)
     password[n] = '\0';
     printf("\n");
 }
-
-
-void setBackgroundColor(int bg) {
-    // Get the current console handle
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-
-    // Get the current attributes (foreground color)
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    GetConsoleScreenBufferInfo(hConsole, &csbi);
-
-    // Extract the current foreground color
-    int fg = csbi.wAttributes & 0x0F; // Get the foreground color (lower 4 bits)
-
-    // Combine foreground and new background color
-    int color = (bg << 4) | fg; // Shift background color and combine with foreground
-    SetConsoleTextAttribute(hConsole, color);
-}
-
-
 void gotoxy(int x, int y) {
     COORD coord;
     coord.X = x;
@@ -148,121 +130,217 @@ void setcolor(int color) {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(hConsole, color);
 }
+#define RESET   "\033[0m"
+#define BOLD    "\033[1m"
+#define YELLOW  "\033[33m"
+#define GREEN   "\033[32m"
+#define WHITE   "\033[37m"
+#define RED "\033[31m"
 
 
-void head_ensah()
-{
-    setcolor(9); // Set text color to bleau
-    printf("****************************************************************************************************************************************************************************");
-    gotoxy(65, 2);
-    printf("-\tBIENVENUE A LA BIBLIOTHEQUE DE L'ENSAH\t-\n\n");
-    printf("****************************************************************************************************************************************************************************\n");
-    setcolor(7);
-} // Reset text color to white
+
 
 
 void head()
 {
-    setcolor(9); // Set text color to bleau
     printf("████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████");
     gotoxy(50, 3);
     printf("-LA BIBLIOTHEQUE DE L'ECOLE NATIONALE DES SCIENCES APPLIQUEES AL HOCEIMA-\n\n");
     gotoxy(0,6);
     printf("████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████\n");
-    setcolor(7);
-} // Reset text color to white
-
-
+}/*
 void sign_in1()
 {
-    fp = fopen(nomFile_2,"at");
+erreur_nom:
+        head();
+    fp = fopen(nomFile_2,"ab");
     if (fp == NULL)
     {
         printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile_2);
         exit(0);
     }
-erreur_nom:
-    setcolor(9); // Set text color to bleau
-    printf("****************************************************************************************************************************************************************************");
-    gotoxy(70, 3);
-    printf("-E S P A C E  D' E L E V E-\n\n");
-    printf("****************************************************************************************************************************************************************************\n");
-    setcolor(9); // Set color for the borders
-    gotoxy(65, 8);
-    printf("**********************************************");
-    gotoxy(65, 10);
-    printf("-\t\tSE CONNECTER\t\t-");
-    gotoxy(65, 11);
-    printf("**********************************************");
-    gotoxy(55,10);
-    printf("----------");
-    gotoxy(101,10);
-    printf("----------");
-    gotoxy(65,21);
-    printf("**********************************************");
-    setcolor(7); // Reset color for text input fields
-    gotoxy(65,13);
-    printf("Enter votre nom:\n");
-    gotoxy(65,14);
-    printf("Enter votre prenom:\n");
-    gotoxy(65,15);
-    printf("Enter votre CIN:\n");
-    gotoxy(65,16);
-    printf("Enter votre CNE:\n");
-    gotoxy(65,17);
-    printf("Enter votre e-mail:\n");
-    gotoxy(65,18);
-    printf("Enter adresse :\n");
-    gotoxy(65,19);
-    printf("Enter votre mot de passe :\n");
-    gotoxy(81,13);
+    gotoxy(32, 10);
+    printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━|L' I N S C R I P T I O N|━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    gotoxy(64,13);
+    printf("Enter votre nom          :");
+    gotoxy(64,14);
+    printf("Enter votre prenom       :");
+    gotoxy(64,15);
+    printf("Enter votre CIN          :");
+    gotoxy(64,16);
+    printf("Enter votre CNE          :");
+    gotoxy(64,17);
+    printf("Enter votre e-mail       :");
+    gotoxy(64,18);
+    printf("Enter adresse            :");
+    gotoxy(64,19);
+    printf("Enter votre mot de passe :");
+    gotoxy(55,22);
+    printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    gotoxy(91,13);
     fflush(stdin);
     scanf("%[^\n]",u.nom);
     if(!isTextOnly(u.nom))
     {
         gotoxy(60,23);
-        printf("!!! N.B : Seul de CARACTERE et ESPACE\nVoyez saisir un NOM valide");
+        printf("\n\t!!! N.B : Seul de CARACTERE et ESPACE\nVoyez saisir un NOM valide");
         Sleep(2000);
         system("cls");
         goto erreur_nom;
     }
-    gotoxy(84,14);
+    gotoxy(91,14);
     fflush(stdin);
     scanf("%[^\n]",u.prenom);
     if(!isTextOnly(u.prenom))
     {
         gotoxy(60,23);
-        printf("!!! N.B : Seul de CARACTERE et ESPACE\nVoyez saisir un PRENOM valide");
+        printf("\n\t!!! N.B : Seul de CARACTERE et ESPACE\nVoyez saisir un PRENOM valide");
         Sleep(2000);
         system("cls");
         goto erreur_nom;
     }
-    gotoxy(81,15);
+    gotoxy(91,15);
     fflush(stdin);
     scanf("%s",u.CIN);
     if(!isTextPrint(u.CIN))
     {
         gotoxy(60,23);
-        printf("!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE\nVoyez saisir une CIN valide");
+        printf("\n\t!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE\nVoyez saisir une CIN valide");
         Sleep(2000);
         system("cls");
         goto erreur_nom;
     }
-    gotoxy(81,16);
+    gotoxy(91,16);
     fflush(stdin);
     scanf("%s",u.CNE);
     if(!isTextPrint(u.CNE))
     {
         gotoxy(60,23);
-        printf("!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE\nVoyez saisir une CNE valide");
+        printf("\n\t!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE\nVoyez saisir une CNE valide");
         Sleep(2000);
         system("cls");
         goto erreur_nom;
     }
-    gotoxy(84,17);
+    gotoxy(91,17);
     fflush(stdin); scanf("%s",u.email);
-    gotoxy(81,18);
+    gotoxy(91,18);
     fflush(stdin); scanf("%[^\n]",u.adresse); //fgets(u.adresse,sizeof(u.adresse),stdin);
+    u.adresse[strcspn(u.adresse, "\n")] = '\0'; //A questionner ??
+    gotoxy(91,19);
+    fflush(stdin); scanf("%s",u.password);
+    fprintf(fp,"%s|%s|%s|%s|%s|%s|%s\n",u.nom,u.prenom,u.CIN,u.CNE, u.email,u.adresse,u.password);
+    n = fclose(fp);
+    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_2);
+    gotoxy(70,23);
+    setcolor(10);
+    setBackgroundColor(5);
+    printf("VOUS ETES INSCRIT AVEC SUCCES!\n");
+    gotoxy(65,26);
+    setcolor(7);
+    setBackgroundColor(5);
+    printf("Voulez-vous aller à la page de connexion ? (O/N) : ");
+erreur_alpha5:
+    fflush(stdin);
+    scanf(" %c", &c);
+    if(toupper(c) != 'O' && toupper(c) != 'N')
+    {
+        gotoxy(65,27);
+        printf("Voyez saisir une choix correcte (O/N) : ");
+        goto erreur_alpha5;
+    }
+    else if(toupper(c) == 'O')
+    {
+        printf("\nRedirection vers la page de connexion...\n");
+        Sleep(3000);
+        system("cls");
+        LOGIN1();
+    }
+    else erreur_page();
+}
+*/
+void sign_in1()
+{erreur_nom:
+        head();
+    fp = fopen(nomFile_2,"ab");
+    if (fp == NULL)
+    {
+        printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile_2);
+        exit(0);
+    }
+    gotoxy(32, 10);
+    printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━|L' I N S C R I P T I O N|━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    gotoxy(64,13);
+    printf("Enter votre nom          :");
+    gotoxy(64,14);
+    printf("Enter votre prenom       :");
+    gotoxy(64,15);
+    printf("Enter votre CIN          :");
+    gotoxy(64,16);
+    printf("Enter votre CNE          :");
+    gotoxy(64,17);
+    printf("Enter votre e-mail       :");
+    gotoxy(64,18);
+    printf("Enter adresse            :");
+    gotoxy(64,19);
+    printf("Enter votre mot de passe :");
+    gotoxy(55,22);
+    printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    gotoxy(91,13);
+    fflush(stdin);
+    scanf("%[^\n]",u.nom);
+    if(!isTextOnly(u.nom))
+    {
+        gotoxy(60,23);
+        printf("!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE");
+        gotoxy(67,24);
+        printf("Veuillez saisir une CNE valide");
+        Sleep(2000);
+        system("cls");
+        goto erreur_nom;
+    }
+    gotoxy(91,14);
+    fflush(stdin);
+    scanf("%[^\n]",u.prenom);
+    if(!isTextOnly(u.prenom))
+    {
+        gotoxy(60,23);
+        printf("!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE");
+        gotoxy(67,24);
+        printf("Veuillez saisir une CNE valide");
+        Sleep(2000);
+        system("cls");
+        goto erreur_nom;
+    }
+    gotoxy(91,15);
+    fflush(stdin);
+    scanf("%s",u.CIN);
+    if(!isTextPrint(u.CIN))
+    {
+        gotoxy(60,23);
+        printf("!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE");
+        gotoxy(67,24);
+        printf("Veuillez saisir une CNE valide");
+        Sleep(2000);
+        system("cls");
+        goto erreur_nom;
+    }
+    gotoxy(91,16);
+    fflush(stdin);
+    scanf("%s",u.CNE);
+    if(!isTextPrint(u.CNE))
+    {
+        gotoxy(60,23);
+        printf("!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE");
+        gotoxy(67,24);
+        printf("Veuillez saisir une CNE valide");
+        Sleep(2000);
+        system("cls");
+        goto erreur_nom;
+    }
+    gotoxy(91,17);
+    fflush(stdin); scanf("%s",u.email);
+    gotoxy(91,18);
+    fflush(stdin);scanf("%[^\n]",u.adresse);
     u.adresse[strcspn(u.adresse, "\n")] = '\0'; //A questionner ??
     gotoxy(91,19);
     fflush(stdin); scanf("%s",u.password);
@@ -285,14 +363,16 @@ erreur_nom:
     if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_5);
     if(!m)
     {
-        fprintf(fp,"%s|%s|%s|%s|%s|%s|%s\n",u.nom,u.prenom,u.CIN,u.CNE, u.email,u.adresse,u.password);
+        fprintf(fp,"%s|%s|%s|%s|%s|%s|%s\n",u.nom,u.prenom,u.CIN,u.CNE,u.email,u.adresse,u.password);
+
         gotoxy(70,23);
         setcolor(10);
+        setBackgroundColor(5);
         printf("VOUS ETES INSCRIT AVEC SUCCES!\n");
-        setcolor(9);
-        gotoxy(65,26);
+
+
+        gotoxy(62,26);
         printf("Voulez-vous aller à la page de connexion ? (O/N) : ");
-        setcolor(7);
 erreur_alpha5:
         fflush(stdin);
         scanf(" %c", &c);
@@ -310,37 +390,52 @@ erreur_alpha5:
             LOGIN1();
         }
         else erreur_page();
+
     }
-    else printf("%s %s , Votre compte est blocké !!!\nConsulter avec l'administrateur pour régler vos problèmes. ", (u.nom) , (u.prenom));
-    n = fclose(fp);
-    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_2);
+    else {
+            setcolor(12);
+            setBackgroundColor(5);
+    gotoxy(55,24);
+            printf("%s %s , Votre compte est blocké !!!", (u.nom) , (u.prenom));
+    gotoxy(55,25);
+    printf("Consulter avec l'administrateur pour régler vos problèmes.");
+        gotoxy(55,26);
+    printf("appuyez sur une touche pour continuer");
+            n = fclose(fp);
+                getch();
+    homepage();
+if (n != 0) {
+    perror("Erreur lors de la fermeture du fichier");
+    exit(1);
+    }
+    }
 }
 
 
+
+
 void LOGIN1()
-{
+{   system("color 57");
     char email[N];
     fp = fopen(nomFile_2, "rt");
     if (fp == NULL)
     {
         printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile_2);
-        exit(1); // Ensure you handle the error appropriately
+        exit(1);
     }
-    head_ensah();
+    head();
     u1 = (user *)malloc(sizeof(user));
-    setcolor(9); // Set color for the borders
     gotoxy(50, 12);
     printf("━━━━━━━━━━━━━━━━━━━━━|LOGIN TO YOUR ACCOUNT|━━━━━━━━━━━━━━━━━━━━━");
     gotoxy(62,21);
     printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     gotoxy(65, 15);
     printf("Email       :");
-    // Password prompt
     gotoxy(65, 18);
     printf("Mot de passe: ");
     gotoxy(65 + strlen("Email       :"), 15);
     scanf("%s", email);
-    gotoxy(65 + strlen("Mot de passe: "), 16);
+    gotoxy(65 + strlen("Mot de passe: "), 18);
     masquer_mot_de_passe(pass);
     m = 0;
     while (fscanf(fp, "%[^|]|%[^|]|%[^|]|%[^|]|%[^|]|%[^|]|%s\n", &(u1->nom), &(u1->prenom), &(u1->CIN), &(u1->CNE), &(u1->email), &(u1->adresse), &(u1->password)) == 7)
@@ -353,27 +448,29 @@ void LOGIN1()
     }
     n = fclose(fp);
     if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_2);
-    gotoxy(65,22);
+    gotoxy(59,23);
     if(!m)
     {
-        gotoxy(68, 20);
+        gotoxy(68, 23);
         setcolor(12);
-        printf("%s %s",u1->email,u1->password); /* puts("CIN ou Mot de passe incorrect"); */
-        Sleep(2500);
+        setBackgroundColor(5);
+        puts("CIN ou Mot de passe incorrect");
+        gotoxy(65, 25);
+        printf("Appuyez sur une touche pour continuer...");
+        getch();
         system("cls");
         LOGIN1();
     }
     setcolor(10);
+    setBackgroundColor(5);
     printf("Connexion réussie ! Bienvenue %s %s.\n", u1->nom, u1->prenom);
-    setcolor(7);
     Sleep(2500);
     system("cls");
-    espace_etudiant(); // Assurez-vous que cette fonction est bien définie et fonctionne
+    espace_etudiant();
 }
 
-
 void LOGIN2()
-{
+{   system("color 57");
     char password[N];
     head();
     fp = fopen(nomFile_3,"rb");
@@ -382,14 +479,13 @@ void LOGIN2()
         printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile_3);
         return;
     }
-    setcolor(9); // Set color for the borders
     gotoxy(50, 12);
     printf("━━━━━━━━━━━━━━━━━━━━━|LOGIN TO YOUR ACCOUNT|━━━━━━━━━━━━━━━━━━━━━");
-    gotoxy(67,20);
-    printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    gotoxy(65, 16);
-    printf("Mot de passe: ");
-    gotoxy(65+strlen("Mot de passe: "),16);
+    gotoxy(66,20);
+    printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    gotoxy(66, 16);
+    printf("Password:");
+    gotoxy(66+strlen("Password: "),16);
     masquer_mot_de_passe(password);
     m = 0;
     fflush(stdin);
@@ -404,17 +500,19 @@ void LOGIN2()
     }
     n = fclose(fp);
     if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_3);
-    gotoxy(70,22);
+    gotoxy(74,22);
     if(!m)
     {
-        setcolor(4);
-        gotoxy(73, 24);
+       setcolor(4);
+       setBackgroundColor(5);
+        gotoxy(71, 24);
         puts("CIN ou Mot de passe incorrect\n");
         Sleep(2500);
         system("cls");
         LOGIN2();
     }
     setcolor(10);
+    setBackgroundColor(5);
     printf("Connexion réussie!\n");
     Sleep(2500);
     system("cls");
@@ -438,49 +536,38 @@ void erreur_page(){
     setcolor(07);
     Sleep(2500);
     exit(0);
-    system("PAUSE"); // Exit the program
+    system("PAUSE");
 }
 
 
 void login_sign_in1()
-{
-    system("color 9");
-    printf("\n\n\n\n");
+{   system("cls");
+head();
     gotoxy(26,11);
     printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━|E S P A C E   D' E T U D I A N T|━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     while(1)
     {
         n = 0;
-        // Set color for the top border
-        setcolor(9); // Blue for the border
-        gotoxy(59, 14);
-        printf("1. Se connecter                 ");
-        gotoxy(90, 14);
-        printf("2. S'inscrire               ");
-        setcolor(9);
-        puts("|");
-        // Set color for the exit option
-        setcolor(9);
-        gotoxy(65, 15);
-        printf("| \t");
-        setcolor(7);
-        printf("3. Quitter                  ");
+    gotoxy(59, 14);
+    printf("1. se connecter          ");
+     gotoxy(90, 14);
+    printf("2. s'inscrire            ");
+     gotoxy(78, 17);
+    printf("3. Exit                  ");
         gotoxy(55, 20);
         printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
         gotoxy(65, 24);
-        printf("Veuillez selectionner une option valide (1-3): ");
-        setcolor(9);
+        printf("Please select a valid option (1-3): ");
         gotoxy(100, 24);
 tarik:
-        setcolor(7);
         fflush(stdin); scanf("%d", &n);
         // Read user input
         switch (n)
         {
             case 1:
-               system("cls"); // Clear the screen
-               LOGIN1(); // Call the login function
-               return; // Exit the function after successful login
+               system("cls");
+               LOGIN1();
+               return;
             case 2:
                 system("cls");
                 sign_in1();
@@ -500,37 +587,31 @@ tarik:
 
 
 void login_sign_in2()
-{
-    system("color 9");
+{   system("cls");
+    system("color 57");
+    head();
     gotoxy(26,11);
     printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━|E S P A C E   D' A D M I N I S T R A T I O N|━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     while(1)
     {
         n = 0;
         gotoxy(65, 15);
-        setcolor(7);
-        printf("1. Connexion                 ");
-        setcolor(9);
-        puts("|");
-        // Set color for the sign-in option
-        setcolor(9);
+        printf("1. Connexion                   ");
         gotoxy(95, 15);
-        printf("2. Quitter                  ");
-        setcolor(9);
-         gotoxy(52, 19);
+        printf("2. Quitter                     ");
+        gotoxy(52, 19);
         printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
-        gotoxy(59, 23);
+        gotoxy(60, 23);
         printf("Veuillez selectionner une option valide (1-3): ");
-        gotoxy(59+strlen("Veuillez selectionner une option valide (1-3): "), 23);
+        gotoxy(60+strlen("Veuillez selectionner une option valide (1-3): "), 23);
 tarik:
         fflush(stdin); scanf("%d", &n);
-        // Read user input
         switch (n)
         {
             case 1:
-               system("cls"); // Clear the screen
-               LOGIN2(); // Call the login function
-               return; // Exit the function after successful login
+               system("cls");
+               LOGIN2();
+               return;
             case 2:
                 system("cls");
                 homepage();
@@ -542,52 +623,55 @@ tarik:
     }
 }
 
-
-void homepage()
-{
+void homepage() {
     system("cls");
-    setcolor(9);
     head();
-    n = 0;
-    system("color 9");
-    gotoxy(30,9);
-    printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━|M E N U  P R I N C I P A L|━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
-    gotoxy(18,13);
-    printf("                              Veuillez choisir l'espace que vous voulez souhaiter faire des operations :");
-    gotoxy(50,17);
-    printf("1-Espace Etudiants : \t\t\t 2-Espace Administration :");
-    gotoxy(35,20);
-    printf("3-QUITTER :\n\n\n");
-    gotoxy(45,22);
-    printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
-    gotoxy(130,39);
-    puts("¸2024 ENSAH LIBRARY. All rights reserved - Developed by T. BOUKAIDI and I. BEL EL YAZID");
-    gotoxy(68,25);
-    printf("Veuillez entrer votre choix : ");
+   system("color 57");
+
+           int n;
+gotoxy(30,9);
+printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━|M E N U  P R I N C I P A L|━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+gotoxy(18,13);
+printf("                              veuillez choisir l'espace que vous voulez souhaiter faire des operations :");
+
+gotoxy(50,17);
+printf("1-espace d'etudiants:                          2-espace administration :");
+gotoxy(35,20);
+printf("                                            3-QUITTER : \n\n\n");
+gotoxy(45,22);
+printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+gotoxy(130,39);
+printf("© 2024 ENSAH LIBRARY. All rights reserved - Developed by T. BOUKAIDI and I. BEL EL YAZID");
+gotoxy(72,25);
+printf("Veuillez entrer votre choix : ");
+gotoxy(72+strlen("Veuillez entrer votre choix :"),25);
+fflush(stdin);
+scanf("%d", &n);
 tarik:
-    gotoxy(72+strlen("Veuillez entrer votre choix :"),25);
-    fflush(stdin); scanf("%d", &n);
-    switch (n)
-    {
-        case 1:
-            system("cls"); // Clear the screen
-            afficherEtAccepterTermesConditions();
-            return; // Exit the function after successful login
-        case 2:
-            system("cls"); // Clear the screen
-            login_sign_in2(); // Call the login sign in function
-            return; // Exit the function after successful login
-        case 3:
-            erreur_page();
-            exit(0);
-        default:
-            gotoxy(60, 25);
-            printf("Entree invalide!!! Veuillez selectionner une option valide (1-3): ");
-            gotoxy(109, 25);
-            goto tarik;
+switch (n) {
+
+            case 1:
+               system("cls");
+              afficherEtAccepterTermesConditions();
+               return;
+            case 2:
+               system("cls");
+              login_sign_in2();
+               return;
+            case 3:
+                erreur_page();
+
+                exit(0);
+           default:
+
+                    gotoxy(63, 25);
+                    printf("Invalid input.Please select a valid option (1-3): ");
+                    gotoxy(112, 25);
+                    scanf("%d",&n);
+                    goto tarik;
+
     }
 }
-
 
 void afficher_livre(const char *nom)
 {
@@ -616,7 +700,7 @@ void afficher_livre(const char *nom)
 
 void afficher_informations1(info_livre tmp)
 {
-    printf("\n============== Details du Livre ===============\n");
+    printf("\n============== Details du Livre ==============\n");
     printf("ID               : %d\n", tmp.ID);
     printf("Titre            : %s\n", tmp.titre);
     printf("Acteur           : %s\n", tmp.auteur);
@@ -637,11 +721,12 @@ void affiche_livre(const char *fichier_source)
         n = 0;
         tmp = (info_livre*) malloc (sizeof(info_livre));
         system("cls");
-        printf("____________________________________________________________________________________________________________________________\n");
-        gotoxy(30,35);
-        printf("| ID         | Titre               | Auteur            | Éditeur            |  Année  | Prix/Jour | Prix Aprés une Semaine |\n");
-        gotoxy(30,36);
-        printf("____________________________________________________________________________________________________________________________\n");
+        gotoxy(25,12);
+        printf("__________________________________________________________________________________________________________________________________");
+        gotoxy(25,13);
+        printf("| ID         |    Titre               |    Auteur            | Éditeur            |  Année  | Prix/Jour | Prix Aprés une Semaine |");
+        gotoxy(25,14);
+        printf("__________________________________________________________________________________________________________________________________");
         fp = fopen(fichier_source, "r+t");
         if (fp == NULL)
         {
@@ -650,12 +735,12 @@ void affiche_livre(const char *fichier_source)
         }
         while (fscanf(fp, "%d|%[^|]|%[^|]|%[^|]|%d|%d|%f|%f\n" , &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication) , &(tmp->qte) , &(tmp->prix_jour) , &(tmp->prix_semaine)) == 8)
         {
-            gotoxy(30, 37 + n);
-            printf("| %-10d | %-19s | %-17s | %-18s | %-7d | %-9.2f | %-22.2f |\n", (tmp->ID), (tmp->titre), (tmp->auteur), (tmp->editeur), (tmp->ans_publication), (tmp->prix_jour), (tmp->prix_semaine));
+            gotoxy(25, 15 + n);
+            printf("| %-10d | %-22s | %-20s | %-18s | %-7d | %-9.2f | %-22.2f |\n", (tmp->ID), (tmp->titre), (tmp->auteur), (tmp->editeur), (tmp->ans_publication), (tmp->prix_jour), (tmp->prix_semaine));
             n++;
         }
-        gotoxy(30, 37 + n);
-        printf("____________________________________________________________________________________________________________________________\n");
+        gotoxy(25, 15 + n);
+        printf("__________________________________________________________________________________________________________________________________\n");
         n = fclose(fp);
         if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", fichier_source);
     }
@@ -681,19 +766,16 @@ void retourner_livre()
         if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile);
         exit(1);
     }
-    // Lecture du titre du livre
     printf("Entrez le titre du livre : ");
     fflush(stdin);
-    fgets(nom, sizeof(nom), stdin);
-    nom[strcspn(nom, "\n")] = '\0';  // Supprimer le saut de ligne (\n)
+    fgets(nom, sizeof(nom), stdin); // Lire la ligne entière avec les espaces
+    nom[strcspn(nom, "\n")] = '\0'; // Retirer le saut de ligne si présent
     info_livre *livre = (info_livre*) malloc (sizeof(info_livre));
     // Lecture ligne par ligne du fichier source
     while (fscanf(fp, "%d|%[^|]|%[^|]|%[^|]|%d|%d|%f|%f\n", &(livre->ID), &(livre->titre), &(livre->auteur), &(livre->editeur), &(livre->ans_publication), &(livre->qte), &(livre->prix_jour), &(livre->prix_semaine)) == 8)
     {
-        // Affiche le livre lu pour vérifier
-        printf("Vérification du livre : %s\n", livre->titre);
-        // Comparer le titre
-        if (!strcmp(livre->titre, nom))
+
+        if (strcmp(livre->titre, nom) == 0)
         {                                    // Si le livre est trouvé
             livre->qte += 1;             // Incrémenter la quantité
             m = 1;                       // Marquer comme trouvé
@@ -723,8 +805,6 @@ void retourner_livre()
 
 void afficher_menu_etu()
 {
-    head_ensah();
-    setcolor(9);
         gotoxy(60,12);
     puts("━━━━━━━━━━━━━━━━━━ESPACE ETUDIANTS━━━━━━━━━━━━━━━━━");
     gotoxy(60, 14);
@@ -740,19 +820,18 @@ void afficher_menu_etu()
     gotoxy(60, 24);
     printf("---------------------------------------------------");
     gotoxy(60, 26);
-    printf("*\t0                Exit                        *");
+    printf("*\t0                 Exit                        *");
     gotoxy(60, 28);
     puts("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     gotoxy(64, 30);
-    printf("Veuillez entrer une meilleure choix (0-3):  ");
-    setcolor(07);
+    printf("Veuillez entrer une meilleure choix (0-3)");
     gotoxy(64+strlen("Veuillez entrer une meilleure choix (0-3): "),30);
     scanf("%d", &choix);
 }
 
 
 void espace_etudiant()
-{
+{    system("color 57");
     head();
     convertirEnMajuscules(u1->nom);
     convertirEnMajuscules(u1->prenom);
@@ -788,28 +867,24 @@ void espace_etudiant()
             break;
         default :
             setcolor(4);
-            gotoxy(62,32);
+            gotoxy(64,32);
             puts("Erreur!!! entrer un nombre valide entre (0-3):");
             Sleep(2000);
-            gotoxy(65,33);
-            puts("Appuyez sur une touche pour continuer...");
             break;
     }
-    printf("Appuyez sur une touche pour continuer...");
+    gotoxy(69,33);
+    puts("Appuyez sur une touche pour continuer...");
     getch();
     system("cls");
 
     if(choix) espace_etudiant();
     }while(choix != 0);
-
     getch();
 }
 
 
 void afficher_menu_admini()
 {
-    head_ensah();
-    setcolor(9);
         gotoxy(35,11);
     puts("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━│ESPACE ADMINISTRATION│━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     gotoxy(50,15);
@@ -828,18 +903,19 @@ void afficher_menu_admini()
     printf("7-Lister les livres empruntes");
     gotoxy(107,27);
     printf("8-Liste_Noire");
-    gotoxy(50,31);
+    gotoxy(85,31);
     printf("0-Exit");
-    gotoxy(35,33);
+    gotoxy(35,35);
     puts("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    gotoxy(70,36);
+    gotoxy(68,37);
     printf("Veuillez entrer une meilleur choix (0-8): ");
     scanf("%d", &choix);
 }
 
 
 void espace_administration()
-{
+{   system("color 57");
+    system("cls");
     head();
     Is_Fichier_Livre(nomFile);
     Is_Fichier_Livre(nomFile_2);
@@ -889,11 +965,12 @@ void espace_administration()
             break;
         default :
             setcolor(4);
-            gotoxy(62,34);
-            puts("Erreur!!! entrer un nombre valide entre (0-8):");
-            sleep(2);
-            gotoxy(65,35);
+            setBackgroundColor(5);
+            gotoxy(67,38);
+            puts("Erreur!!! entrer un nombre valide entre (0-8)");
+            gotoxy(69,39);
             puts("Appuyez sur une touche pour continuer...");
+            getch();
             break;
     }
     getch();
@@ -904,8 +981,6 @@ void espace_administration()
 
     getch();
 }
-
-
 void emprunter_livre()
 {
     recherche_livre();
@@ -934,7 +1009,7 @@ erreur_num:
             strcpy((temporaire->email) , (u1->email));
             strcpy((temporaire->adresse) , (u1->adresse));
             temporaire->livre = tmp ;
-            puts("Combien de jours voulez-vous d'emprunt ? (N.B : Ne dépasse pas 2 mois)");
+            puts("Combien de jours voulez-vous d'emprunt ? (N.B  Ne dépasse pas 2 mois) :");
 erreur_num1:
             fflush(stdin);
             m = scanf("%d", &n);
@@ -947,7 +1022,7 @@ erreur_num1:
             float total = (n < 7) ? tmp->prix_jour * n : tmp->prix_semaine;
             if(n == 1) printf("Le coût total d'un seul jour est : %.2fDH\n", total);
             else printf("Le coût total des %d jours est : %.2fDH\n", n, total);
-            printf("Voulez-vous suiver cette processus : ");
+            printf("Voulez-vous suiver cette processus (O/N) : ");
 erreur_alpha4:
             fflush(stdin);
             scanf(" %c", &c);
@@ -1021,23 +1096,21 @@ erreur_date:
                     printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile_4);
                     return;
                 }
-                fprintf(fp , "%d|%s|%s|%s|%d|%s|%s|%s|%s\n" , (temporaire->livre->ID) , (temporaire->livre->titre) , (temporaire->livre->auteur) , (temporaire->livre->editeur) , (temporaire->livre->ans_publication) , (temporaire->email), (temporaire->adresse), (temporaire->date_debut), (temporaire->date_fin));
+                fprintf(fp , " %-6d %-28s %-20s %-22s %-7d %-15s %-22s %-7s   %-7s\n" , (temporaire->livre->ID) , (temporaire->livre->titre) , (temporaire->livre->auteur) , (temporaire->livre->editeur) , (temporaire->livre->ans_publication) , (temporaire->email), (temporaire->adresse), (temporaire->date_debut), (temporaire->date_fin));
                 n = fclose(fp);
                 if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_4);
                 puts("Votre emprunte a été effectué sans erreur!!");
                 Sleep(2000);
                 printf("Vous recevez la livraison le jour : %s a %s (%s) , Jusqu'au : %s à %s (%s) sous l'adresse : %s .\n", temporaire->date_debut, s1, s2, temporaire->date_fin, s1, s2, temporaire->adresse);
+                printf("vous devez payer livreur");
             }
         }
         else printf("Aucun livre trouvé avec l'ID %d.\n", id);
     }
     else puts("\nDésole!!! Actuellement, Il n'y a pas de livre pour emprunter !!!\n\tVoyez revenir ulterierement\n\tMERCI POUR VOTRE COMPREHENSION.");
 }
-
-
 void liste_livre_emprunter()
-{
-    n = 0;
+{   int i=0;
     system("cls");
     fp = fopen(nomFile_4,"r+t");
     if(fp == NULL)
@@ -1045,20 +1118,20 @@ void liste_livre_emprunter()
         printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile_4);
         return ;
     }gotoxy(10,12);
-    printf("--------------------------------------------------------------------------------------------------------------------------------------------------");
+    printf("--------------------------------------------------------------------------------------------------------------------------------------------------------");
     gotoxy(10,13);
-    printf("|  ID  |            Titre           |        Acteur      |           Editeur          | Année |     CIN    |     CNE    |  DateDébut |  DateFin  |");
+    printf("|  ID  |            Titre           |        Acteur      |        Editeur       | Année |     Email    |        Adresse       |  DateDébut |  DateFin  |");
     gotoxy(10,14);
-    printf("--------------------------------------------------------------------------------------------------------------------------------------------------");
+    printf("--------------------------------------------------------------------------------------------------------------------------------------------------------");
     while (!feof(fp))
     {
         fgets(line, sizeof(line), fp);
-        gotoxy(10,15+n);
+        gotoxy(10,15+i);
         printf("%s\n", line);
-        n++;
+        i++;
     }
-     gotoxy(10,14+n);
-         printf("--------------------------------------------------------------------------------------------------------------------------------------------------");
+     gotoxy(10,14+i);
+    printf("--------------------------------------------------------------------------------------------------------------------------------------------------------");
 
 
     n = fclose(fp);
@@ -1096,319 +1169,56 @@ void copier_livres(const char *fichier_source, const char *fichier_destination)
     rename(fichier_destination , fichier_source);
 }
 
-
+/*
 void statistique()
 {
-    int maxi = 0, mini = 100000, fois = 0, moins_fois = 10000, nbre_fois = 0 ;
-    float maxi1 = 0.0, mini1 = 100000.0;
-
-
+    int maxi = 0, mini = 0;
+    float maxi1 = 0.0, mini1 = 0.0;
+    int *tab_id_qte, *tab_id_ans, *tab_id_prix;
+    tab_id_qte = (int*) malloc (L * sizeof(int));
+    tab_id_ans = (int*) malloc (L * sizeof(int));
+    tab_id_prix = (int*) malloc (L * sizeof(int));
+    tmp = (info_livre*) malloc (sizeof(info_livre));
     fp = fopen(nomFile, "r+t");
+    fp_1 = fopen(nomFile_4, "r+t");
     if (fp == NULL) {
         printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile);
         return;
     }
-    tmp = (info_livre*) malloc (sizeof(info_livre));
-    m = 0;
-    while(fscanf(fp , "%d|%[^|]|%[^|]|%[^|]|%d|%d|%f|%f\n" , &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication) , &(tmp->qte) , &(tmp->prix_jour) , &(tmp->prix_semaine)) == 8)
+    if (fp_1 == NULL) {
+        printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile);
+        n = fclose(fp);
+        if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_4); // Fermer le fichier source avant de quitter
+        return;
+    }
+    printf("ÉÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ Statistique ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ»\n");
+    printf("º   Les livre(s) (a/ont) plus grand quantité (sont/est):           º\n");
+    while(!feof(fp))
     {
-        if(tmp->qte) m += (tmp->qte);
-        if(maxi < (tmp->ans_publication)) maxi = (tmp->ans_publication);
-        if(mini > (tmp->ans_publication)) mini = (tmp->ans_publication);
-        if(maxi1 < (tmp->prix_semaine)) maxi1 = (tmp->prix_semaine);
-        if(mini1 > (tmp->prix_semaine)) mini1 = (tmp->prix_semaine);
+        fscanf(fp , "%d|%[^|]|%[^|]|%[^|]|%d|%d|%f|%f\n" , &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication) , &(tmp->qte) , &(tmp->prix_jour) , &(tmp->prix_semaine));
+        if(maxi <= (tmp->qte))
+        {
+            maxi = (tmp->qte);
+        }
+        if(mini >= (tmp->qte)) mini = (tmp->qte);
+
+        if(maxi <= (tmp->ans_publication)) maxi = (tmp->ans_publication);
+
+        if(mini >= (tmp->ans_publication)) mini = (tmp->ans_publication);
+
+        if(maxi1 <= (tmp->prix_semaine)) maxi1 = (tmp->prix_semaine);
+
+        if(mini1 >= (tmp->prix_semaine)) mini1 = (tmp->prix_semaine);
+
     }
     n = fclose(fp);
     if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile);
-    fp_1 = fopen(nomFile_2, "r+t");
-    if (fp_1 == NULL) {
-        printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile_2);
-        return;
-    }
-    while (fgets(line , sizeof(line) , fp_1)) nbre_fois++;
     n = fclose(fp_1);
-    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_2);
+    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_4);
 
-    system("cls");
-    printf("╔═════════════════════════════════════════════════════════════════╣ Statistique ╠═════════════════════════════════════════════════════════════════╗\n");
-    printf("║   La quatité des livres existe au sein de la Bibiothèque ENSAH est : %-9d ;                                                                ║\n", m);
-    printf("║   Le nombre des utilisateurs de la Bibiothèque ENSAH sont : %-12d ;                                                                      ║\n", nbre_fois);
-    printf("║   Le(s) plus anciénne(s) livre(s) à la bibliothèque ENSAH (est/sont) de l'année %5d ;                                                         ║\n", mini);
-    printf("║   Le(s) plus nouveau(x) livre(s) à la bibliothèque ENSAH (est/sont) de l'année %5d ;                                                          ║\n", maxi);
-    printf("║   Le(s) plus chér(s) emprunté(s) livre(s) par semaine à la bibliothèque ENSAH (est/sont) de prix : %-6.2fDH ;                                   ║\n", maxi1);
-    printf("║   Le(s) moins chér(s) emprunté(s) livre(s) par semaine à la bibliothèque ENSAH (est/sont) de prix : %-6.2fDH .                                  ║\n", mini1);
-    printf("╚═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝\n");
+
 }
-
-
-void espace_blocklist()
-{
-    setcolor(9);
-    gotoxy(60,12);
-    puts("━━━━━━━━━━━━━━━━━━ESPACE LISTE-NOIR━━━━━━━━━━━━━━━━━");
-    gotoxy(60, 14);
-    printf("*\t1          Ajouter a la liste-noir           *");
-    gotoxy(60, 16);
-    printf("---------------------------------------------------");
-    gotoxy(60, 18);
-    printf("*\t2        Supprimer sur la liste-noir         *");
-    gotoxy(60, 20);
-    printf("---------------------------------------------------");
-    gotoxy(60, 22);
-    printf("*\t0                Exit                        *");
-    gotoxy(60, 24);
-    puts("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    gotoxy(64, 26);
-    printf("Veuillez entrer une meilleure choix (0-2):  ");
-    setcolor(07);
-    gotoxy(64+strlen("Veuillez entrer une meilleure choix (0-2): "),30);
-    scanf("%d", &choix);
-}
-
-
-void blocklist()
-{
-    system("cls");
-    espace_blocklist();
-    do
-    {
-    switch(choix)
-    {
-        case 0 :
-            system("cls");
-            espace_administration();
-            break;
-        case 1 :
-            ajouter_etudiant();
-            break;
-        case 2 :
-            espace_supprimer_etudiant();
-            break;
-        default :
-            puts("\nErreur!!! ");
-            break;
-    }
-    getch();
-    system("cls");
-
-    if(choix) espace_blocklist();
-    }while(choix != 0);
-    getch();
-}
-
-
-int recherche_etudiant_blocklist(user_blocklist *tmp)
-{
-    fp = fopen(nomFile_5 , "r+t");
-    if(fp == NULL)
-    {
-        printf("\.\.\.\.\.\.\.\.\.\.Impossible d'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\n", nomFile_5);
-        exit(1);
-    }
-    while(fgets(line , sizeof(line) , fp))
-    {
-        if(strstr(line , (tmp->nom)) && strstr(line, (tmp->prenom)) && strstr(line , (tmp->CIN)) && strstr(line , (tmp->CNE)) && strstr(line , (tmp->email)) && strstr(line , (tmp->adresse)))
-        {
-            n = fclose(fp);
-            if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_5);
-            return 1;
-        }
-    }
-    n = fclose(fp);
-    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_5);
-    return 0;
-}
-
-
-
-void supprimer_etudiant(user_blocklist *u3)
-{
-    fp_1 = fopen(nomFile_2 , "r+t");
-    if(fp_1 == NULL)
-    {
-        printf("\.\.\.\.\.\.\.\.\.\.Impossible d'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\n", nomFile_2);
-        exit(1);
-    }
-    fp_2 = fopen(nomFile_1 , "a+t");
-    if(fp_2 == NULL)
-    {
-        printf("\.\.\.\.\.\.\.\.\.\.Impossible d'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\n", nomFile_1);
-        n = fclose(fp_1);
-        if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_2);
-        exit(1);
-    }
-    while(fgets(line , sizeof(line) , fp_1))
-    {
-        if(!strstr(line , (u3->nom)) || !strstr(line, (u3->prenom)) || !strstr(line , (u3->CIN)) || !strstr(line , (u3->CNE)) || !strstr(line , (u3->email)) || !strstr(line , (u3->adresse)))
-            fputs(line , fp_2);
-    }
-    n = fclose(fp_1);
-    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_2);
-    n = fclose(fp_2);
-    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_1);
-    remove(nomFile_2);
-    n = rename(nomFile_1 , nomFile_2);
-    if(!n) printf("L'étudiant(e) %s %s est bien ajouter à la liste-noire.", (u3->prenom), (u3->nom));
-    else printf("Consulter vos informations!! L'étudiant(e) %s %s n'est pas ajouter à la liste-noire.", (u3->prenom), (u3->nom));
-}
-
-
-void ajouter_etudiant()
-{
-    u2 = (user_blocklist*) malloc (sizeof(user_blocklist));
-    saiser_informations_etudiant_blocklist(&u2);
-    if(recherche_etudiant_blocklist(u2)) printf("L'etudiant(e) %s %s est se mettre déjà dans la liste-noir .\n", u2->prenom, u2->nom);
-    else
-    {
-        fp = fopen(nomFile_5 , "a+t");
-        if(fp == NULL)
-        {
-            printf("\.\.\.\.\.\.\.\.\.\.Impossible d'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\n", nomFile_5);
-            exit(1);
-        }
-        fprintf(fp ,"%s|%s|%s|%s|%s|%s\n", (u2->nom), (u2->prenom), (u2->CIN), (u2->CNE), (u2->email), (u2->adresse));
-        n = fclose(fp);
-        if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_5);
-        supprimer_etudiant(u2);
-    }
-    printf("\n\n\nVoulez-vous ajouter un(e) autre etudiant(e) dans la liste-noir (O/N) ? ");
-erreur_alpha6:
-    fflush(stdin);
-    scanf(" %c", &c);
-    if(toupper(c) != 'O' && toupper(c) != 'N')
-    {
-        printf("Voyez saisir une choix correcte (O/N) : ");
-        goto erreur_alpha6;
-    }
-    else if(toupper(c) == 'O')
-    {
-        system("cls");
-        ajouter_etudiant();
-    }
-    system("cls");
-    espace_administration();
-}
-
-
-void supprimer_etudiant_blocklist(user_blocklist *tmp)
-{
-    if(!recherche_etudiant_blocklist(tmp)) printf("L'etudiant(e) %s %s n'existe pas dans la liste-noir .\n", tmp->prenom, tmp->nom);
-    else
-    {
-        n = 1;
-        puts("Les informations d'un(e) etudiant(e) que vous voulez supprimer sont comme suit :\n");
-        afficher_informations_etudiant_blocklist(tmp);
-        printf("Voulez-vous suiver cette operation (O/N) : ");
-erreur_alpha7:
-        fflush(stdin);
-        scanf(" %c", &c);
-        if(toupper(c) != 'O' && toupper(c) != 'N')
-        {
-            printf("Voyez saisir une choix correcte (O/N) : ");
-            goto erreur_alpha7;
-        }
-        else if(toupper(c) == 'O')
-        {
-            fp = fopen(nomFile_5 , "r+t");
-            fp_1 = fopen(nomFile_1 , "a+t");
-            if(fp == NULL)
-            {
-                printf("\.\.\.\.\.\.\.\.\.\.Impossible d'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\n", nomFile_5);
-                exit(1);
-            }
-            if(fp_1 == NULL)
-            {
-                printf("\.\.\.\.\.\.\.\.\.\.Impossible d'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\n", nomFile_1);
-                n = fclose(fp);
-                if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_5);
-                exit(1);
-            }
-            while(fgets(line , sizeof(line) , fp))
-            {
-                if(!strstr(line , (tmp->nom)) || !strstr(line, (tmp->prenom)) || !strstr(line , (tmp->CIN)) || !strstr(line , (tmp->CNE)) || !strstr(line , (tmp->email)) || !strstr(line , (tmp->adresse)))
-                    fprintf(fp_1 ,"%s|%s|%s|%s|%s|%s\n", (tmp->nom), (tmp->prenom), (tmp->CIN), (tmp->CNE), (tmp->email), (tmp->adresse));
-            }
-            n = fclose(fp);
-            if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_5);
-            n = fclose(fp_1);
-            if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_1);
-            remove(nomFile_5);
-            n = rename(nomFile_1 , nomFile_5);
-        }
-        if(!n) printf("\nLa suppression d'etudiant(e) : %s %s, dont (il/elle) exist(e) dans la liste-noir s'effectue avec succee \n", tmp->prenom, tmp->nom) ;
-        else printf("\nLa suppression d'etudiant(e) : %s %s, dont (il/elle) existe(e) dans la liste-noir s'effectue avec echoue \n", tmp->prenom, tmp->nom) ;
-    }
-}
-
-
-void espace_supprimer_etudiant()
-{
-        puts("Donnez les informations d'etudiant(e) que vous-voulez supprimer : \n");
-        u2 = (user_blocklist*) malloc (sizeof(user_blocklist));
-        fflush(stdin);
-        saiser_informations_etudiant_blocklist(&u2);
-        supprimer_etudiant_blocklist(u2);
-        Sleep(2000);
-        system("cls");
-        espace_administration();
-}
-
-
-void saiser_informations_etudiant_blocklist(user_blocklist **u)
-{
-    fflush(stdin);
-    printf("Enter le nom    : ");
-erreur_nom4:
-    fflush(stdin);
-    scanf("%[^\n]",&((*u)->nom));
-    if(!isTextOnly((*u)->nom))
-    {
-        printf("\n\t!!! N.B : Seul de CARACTERE et ESPACE\nVoyez saisir un NOM valide");
-        goto erreur_nom4;
-    }
-    printf("Enter le prenom : ");
-erreur_nom5:
-    fflush(stdin);
-    scanf("%[^\n]",&((*u)->prenom));
-    if(!isTextOnly((*u)->prenom))
-    {
-        printf("\n\t!!! N.B : Seul de CARACTERE et ESPACE\nVoyez saisir un PRENOM valide");
-        goto erreur_nom5;
-    }
-    printf("Enter la CIN    : ");
-erreur_print1:
-    fflush(stdin);
-    scanf("%s",&((*u)->CIN));
-    if(!isTextPrint((*u)->CIN))
-    {
-        printf("\n\t!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE\nVoyez saisir une CIN valide");
-        goto erreur_print1;
-    }
-    printf("Enter la CNE    : ");
-erreur_print2:
-    fflush(stdin);
-    scanf("%s",&((*u)->CNE));
-    if(!isTextPrint((*u)->CNE))
-    {
-        printf("\n\t!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE\nVoyez saisir une CNE valide");
-        goto erreur_print2;
-    }
-    printf("Enter le e-mail : "); fflush(stdin); scanf("%s",&((*u)->email));
-    printf("Enter l'adresse : "); fflush(stdin); scanf("%[^\n]",&((*u)->adresse));
-}
-
-
-void afficher_informations_etudiant_blocklist(user_blocklist *tmp)
-{
-    printf("\n============== Details de l'Etudiant(e) ==============\n");
-    printf("Nom         : %s\n", tmp->nom);
-    printf("Prenom      : %s\n", tmp->prenom);
-    printf("CIN         : %s\n", tmp->CIN);
-    printf("CNE         : %s\n", tmp->CNE);
-    printf("E-mail      : %s\n", tmp->email);
-    printf("Adresse     : %s\n", tmp->adresse);
-    printf("========================================================\n");
-}
+*/
 
 
 void espace_recherche_livre()
@@ -1595,7 +1405,7 @@ erreur_alpha:
 
 void afficher_fpos()
 {
-    setcolor(7);
+
     if(pos == 1.0)
     {
         fp = fopen(nomFile , "r+t");
@@ -1647,7 +1457,7 @@ void info_livre_equ(info_livre *debut)
 
 
 void recherche_livre()
-{
+{  system("color 57");
     tmp = (info_livre*)malloc(sizeof(info_livre));
     fp = fopen(nomFile , "r+t");
     if(fp == NULL) {
@@ -1746,7 +1556,478 @@ erreur_alpha2:
         }
         else if(toupper(c) == 'O') supprimer_livre();
 }
+int choose_item(char **items, char *title)
+{
+    int selected_option = 0;
+    int key;
 
+    // Compter le nombre d'options
+    int item_count = 0;
+    while (items[item_count] != NULL)
+    {
+        item_count++;
+    }
+
+    while (1)
+    {
+        // Effacer l'écran (spécifique à Windows)
+        system("cls");
+
+        // Afficher le titre
+        printf(BOLD YELLOW "%s:\n" RESET, title);
+
+        // Afficher les options avec surlignage
+        for (int i = 0; i < item_count; i++)
+        {
+            if (i == selected_option)
+            {
+                // Si l'option sélectionnée est "Refuser", on l'affiche en rouge
+                if (i == 1) {
+                    printf(RED "> %s\n" RESET, items[i]); // Afficher en rouge
+                } else {
+                    printf(GREEN "> %s\n" RESET, items[i]); // Afficher en vert
+                }
+            }
+            else
+            {
+                printf(WHITE "  %s\n" RESET, items[i]);
+            }
+        }
+
+        // Récupérer la saisie de l'utilisateur
+        key = _getch();
+        if (key == 224) // Préfixe des touches fléchées
+        {
+            key = _getch();
+            if (key == 72 && selected_option > 0) // Flèche du haut
+            {
+                selected_option--;
+            }
+            else if (key == 80 && selected_option < item_count - 1) // Flèche du bas
+            {
+                selected_option++;
+            }
+        }
+        else if (key == 13) // Touche Enter
+        {
+            return selected_option;
+        }
+    }
+}
+
+
+void afficherEtAccepterTermesConditions()
+{   system("color 57");
+    char *options[] = {"Accepter", "Refuser"};
+    int selected_option = 0;
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    WORD originalAttrs;
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+
+    GetConsoleScreenBufferInfo(hConsole, &csbi);
+    originalAttrs = csbi.wAttributes;
+
+    while (1) {
+        system("cls");
+        gotoxy(46, 10);
+        printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━|Termes et Conditions|━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ \n");
+        gotoxy(51, 13);
+        printf("1. Chaque étudiant peut emprunter jusqu'à 3 livres à la fois.\n");
+        gotoxy(51, 14);
+        printf("2. La durée maximale d'emprunt est de 60 jours.\n");
+        gotoxy(51, 15);
+        printf("3. Un retard dans la restitution entraînera une pénalité.\n");
+        gotoxy(51, 16);
+        printf("4. Les livres doivent être rendus en bon état.\n");
+        gotoxy(51, 17);
+        printf("5. En cas de perte ou de dégradation, le livre doit être remboursé.\n");
+        gotoxy(51, 18);
+        printf("6. Le non-respect des règles peut entraîner une suspension de prêt.\n");
+        gotoxy(46, 23);
+        printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+
+
+        for (int i = 0; i < 2; i++) {
+            if (i == selected_option) {
+                if (i == 0) {
+    // "Accepter" à gauche
+    gotoxy(65, 21); // Position à gauche
+    SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | BACKGROUND_RED | BACKGROUND_BLUE);
+} else {
+    // "Refuser" à droite
+    gotoxy(105, 21); // Position à droite
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED| BACKGROUND_RED | BACKGROUND_BLUE);
+}
+            } else {
+                // Default color
+                if (i == 0) {
+                    gotoxy(65, 21); // Position à gauche
+                } else {
+                    gotoxy(105, 21); // Position à droite
+                }
+                SetConsoleTextAttribute(hConsole, originalAttrs);
+            }
+            printf("%s\n", options[i]);
+        }
+
+        // Gestion des touches pressées
+        int ch = _getch();
+        if (ch == 224) { // Touche spéciale (flèches)
+            ch = _getch();
+            switch (ch) {
+                case 75: // Flèche gauche
+                    selected_option = 0; // Aller à "Accepter"
+                    break;
+                case 77: // Flèche droite
+                    selected_option = 1; // Aller à "Refuser"
+                    break;
+            }
+        } else if (ch == 13) { // Touche Entrée
+            break;
+        }
+
+        SetConsoleTextAttribute(hConsole, originalAttrs);
+    }
+
+    system("cls");
+
+    if (selected_option == 0) {
+        login_sign_in1();
+    } else {
+        homepage();
+    }
+}
+void statistique()
+{
+    int maxi = 0, mini = 100000, fois = 0, moins_fois = 10000, nbre_fois = 0 ;
+    float maxi1 = 0.0, mini1 = 100000.0;
+
+
+    fp = fopen(nomFile, "r+t");
+    if (fp == NULL) {
+        printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile);
+        return;
+    }
+    tmp = (info_livre*) malloc (sizeof(info_livre));
+    m = 0;
+    while(fscanf(fp , "%d|%[^|]|%[^|]|%[^|]|%d|%d|%f|%f\n" , &(tmp->ID) , &(tmp->titre) , &(tmp->auteur) , &(tmp->editeur) , &(tmp->ans_publication) , &(tmp->qte) , &(tmp->prix_jour) , &(tmp->prix_semaine)) == 8)
+    {
+        if(tmp->qte) m += (tmp->qte);
+        if(maxi < (tmp->ans_publication)) maxi = (tmp->ans_publication);
+        if(mini > (tmp->ans_publication)) mini = (tmp->ans_publication);
+        if(maxi1 < (tmp->prix_semaine)) maxi1 = (tmp->prix_semaine);
+        if(mini1 > (tmp->prix_semaine)) mini1 = (tmp->prix_semaine);
+    }
+    n = fclose(fp);
+    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile);
+    fp_1 = fopen(nomFile_2, "r+t");
+    if (fp_1 == NULL) {
+        printf("\.\.\.\.\.\.\.\.\.\.Impossible d\'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\. \n", nomFile_2);
+        return;
+    }
+    while (fgets(line , sizeof(line) , fp_1)) nbre_fois++;
+    n = fclose(fp_1);
+    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\.\. ", nomFile_2);
+
+    system("cls");
+    gotoxy(10,12);
+    printf("╔═════════════════════════════════════════════════════════════════╣ Statistique ╠═════════════════════════════════════════════════════════════════╗\n");
+    gotoxy(10,13);
+    printf("║   La quatité des livres existe au sein de la Bibiothèque ENSAH est : %-9d ;                                                                ║\n", m);
+    gotoxy(10,14);
+    printf("║   Le nombre des utilisateurs de la Bibiothèque ENSAH sont : %-12d ;                                                                      ║\n", nbre_fois);
+    gotoxy(10,15);
+    printf("║   Le(s) plus anciénne(s) livre(s) à la bibliothèque ENSAH (est/sont) de l'année %5d ;                                                         ║\n", mini);
+    gotoxy(10,16);
+    printf("║   Le(s) plus nouveau(x) livre(s) à la bibliothèque ENSAH (est/sont) de l'année %5d ;                                                          ║\n", maxi);
+    gotoxy(10,17);
+    printf("║   Le(s) plus chér(s) emprunté(s) livre(s) par semaine à la bibliothèque ENSAH (est/sont) de prix : %-6.2fDH ;                                   ║\n", maxi1);
+    gotoxy(10,18);
+    printf("║   Le(s) moins chér(s) emprunté(s) livre(s) par semaine à la bibliothèque ENSAH (est/sont) de prix : %-6.2fDH .                                  ║\n", mini1);
+    gotoxy(10,19);
+    printf("╚═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝\n");
+}
+void espace_blocklist()
+{
+    gotoxy(60,12);
+    puts("━━━━━━━━━━━━━━━━━━ESPACE LISTE NOIR━━━━━━━━━━━━━━━━━");
+    gotoxy(60, 14);
+    printf("*\t1          Ajouter a la liste-noir           *");
+    gotoxy(60, 16);
+    printf("---------------------------------------------------");
+    gotoxy(60, 18);
+    printf("*\t2        Supprimer sur la liste-noir         *");
+    gotoxy(60, 20);
+    printf("---------------------------------------------------");
+    gotoxy(60, 22);
+    printf("*\t0                Exit                        *");
+    gotoxy(60, 24);
+    puts("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    gotoxy(64, 26);
+    printf("Veuillez entrer une meilleure choix (0-2):  ");
+    gotoxy(64+strlen("Veuillez entrer une meilleure choix (0-2): "),26);
+    scanf("%d", &choix);
+}
+
+
+void blocklist()
+{
+    system("cls");
+    espace_blocklist();
+    switch(choix)
+    {
+        case 0 :
+            espace_administration();
+            break;
+        case 1 :
+            ajouter_etudiant();
+            break;
+        case 2 :
+            espace_supprimer_etudiant();
+            break;
+        default :
+            puts("\nErreur!!! ");
+            break;
+    }
+    getch();
+    system("cls");
+
+    if(choix) espace_blocklist();
+    while(choix != 0);
+    getch();
+}
+
+
+int recherche_etudiant_blocklist(user_blocklist *tmp)
+{
+    fp = fopen(nomFile_5 , "r+t");
+    if(fp == NULL)
+    {
+        printf("\.\.\.\.\.\.\.\.\.\.Impossible d'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\n", nomFile_5);
+        exit(1);
+    }
+    while(fgets(line , sizeof(line) , fp))
+    {
+        if(strstr(line , (tmp->nom)) && strstr(line, (tmp->prenom)) && strstr(line , (tmp->CIN)) && strstr(line , (tmp->CNE)) && strstr(line , (tmp->email)) && strstr(line , (tmp->adresse)))
+        {
+            n = fclose(fp);
+            if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_5);
+            return 1;
+        }
+    }
+    n = fclose(fp);
+    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_5);
+    return 0;
+}
+
+
+int recherche_etudiant_user_blocklist(user *tmp)
+{
+    fp = fopen(nomFile_5 , "r+t");
+    if(fp == NULL)
+    {
+        printf("\.\.\.\.\.\.\.\.\.\.Impossible d'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\n", nomFile_5);
+        exit(1);
+    }
+    m = 0;
+    while (fgets(line, sizeof(line), fp))
+    {
+        if(strstr(line , (tmp->CIN)) && strstr(line , (tmp->CNE)))
+        {
+            m = 1;
+            break;
+        }
+    }
+    n = fclose(fp);
+    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_5);
+    return m;
+}
+
+
+void supprimer_etudiant(user_blocklist *u3)
+{
+    fp_1 = fopen(nomFile_2 , "r+t");
+    if(fp_1 == NULL)
+    {
+        printf("\.\.\.\.\.\.\.\.\.\.Impossible d'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\n", nomFile_2);
+        exit(1);
+    }
+    fp_2 = fopen(nomFile_1 , "a+t");
+    if(fp_2 == NULL)
+    {
+        printf("\.\.\.\.\.\.\.\.\.\.Impossible d'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\n", nomFile_1);
+        n = fclose(fp_1);
+        if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_2);
+        exit(1);
+    }
+    while(fgets(line , sizeof(line) , fp_1))
+    {
+        if(!strstr(line , (u3->nom)) || !strstr(line, (u3->prenom)) || !strstr(line , (u3->CIN)) || !strstr(line , (u3->CNE)) || !strstr(line , (u3->email)) || !strstr(line , (u3->adresse)))
+            fputs(line , fp_2);
+    }
+    n = fclose(fp_1);
+    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_2);
+    n = fclose(fp_2);
+    if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_1);
+    remove(nomFile_2);
+    n = rename(nomFile_1 , nomFile_2);
+    if(!n) printf("L'étudiant(e) %s %s est bien ajouter à la liste-noire.", (u3->prenom), (u3->nom));
+    else printf("Consulter vos informations!! L'étudiant(e) %s %s n'est pas ajouter à la liste-noire.", (u3->prenom), (u3->nom));
+}
+void supprimer_etudiant_blocklist(user_blocklist *tmp)
+{
+    if(!recherche_etudiant_blocklist(tmp)) printf("L'etudiant(e) %s %s n'existe pas dans la liste-noir .\n", tmp->prenom, tmp->nom);
+    else
+    {
+        n = 1;
+        puts("Les informations d'un(e) etudiant(e) que vous voulez supprimer sont comme suit :\n");
+        afficher_informations_etudiant_blocklist(tmp);
+        printf("Voulez-vous suiver cette operation (O/N) : ");
+erreur_alpha7:
+        fflush(stdin);
+        scanf(" %c", &c);
+        if(toupper(c) != 'O' && toupper(c) != 'N')
+        {
+            printf("Voyez saisir une choix correcte (O/N) : ");
+            goto erreur_alpha7;
+        }
+        else if(toupper(c) == 'O')
+        {
+            fp = fopen(nomFile_5 , "r+t");
+            fp_1 = fopen(nomFile_1 , "a+t");
+            if(fp == NULL)
+            {
+                printf("\.\.\.\.\.\.\.\.\.\.Impossible d'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\n", nomFile_5);
+                exit(1);
+            }
+            if(fp_1 == NULL)
+            {
+                printf("\.\.\.\.\.\.\.\.\.\.Impossible d'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\n", nomFile_1);
+                n = fclose(fp);
+                if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_5);
+                exit(1);
+            }
+            while(fgets(line , sizeof(line) , fp))
+            {
+                if(!strstr(line , (tmp->nom)) || !strstr(line, (tmp->prenom)) || !strstr(line , (tmp->CIN)) || !strstr(line , (tmp->CNE)) || !strstr(line , (tmp->email)) || !strstr(line , (tmp->adresse)))
+                    fprintf(fp_1 ,"%s|%s|%s|%s|%s|%s\n", (tmp->nom), (tmp->prenom), (tmp->CIN), (tmp->CNE), (tmp->email), (tmp->adresse));
+            }
+            n = fclose(fp);
+            if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_5);
+            n = fclose(fp_1);
+            if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_1);
+            remove(nomFile_5);
+            n = rename(nomFile_1 , nomFile_5);
+        }
+        if(!n) printf("\nLa suppression d'etudiant(e) : %s %s, dont (il/elle) exist(e) dans la liste-noir s'effectue avec succee \n", tmp->prenom, tmp->nom) ;
+        else printf("\nLa suppression d'etudiant(e) : %s %s, dont (il/elle) existe(e) dans la liste-noir s'effectue avec echoue \n", tmp->prenom, tmp->nom) ;
+    }
+}
+
+
+void espace_supprimer_etudiant()
+{
+        puts("Donnez les informations d'etudiant(e) que vous-voulez supprimer : \n");
+        u2 = (user_blocklist*) malloc (sizeof(user_blocklist));
+        fflush(stdin);
+        saiser_informations_etudiant_blocklist(&u2);
+        supprimer_etudiant_blocklist(u2);
+        Sleep(2000);
+        blocklist();
+}
+
+
+void saiser_informations_etudiant_blocklist(user_blocklist **u)
+{
+    fflush(stdin);
+    printf("Enter le nom    : ");
+erreur_nom4:
+    fflush(stdin);
+    scanf("%[^\n]",&((*u)->nom));
+    if(!isTextOnly((*u)->nom))
+    {
+        printf("\n\t!!! N.B : Seul de CARACTERE et ESPACE\nVoyez saisir un NOM valide");
+        goto erreur_nom4;
+    }
+    printf("Enter le prenom : ");
+erreur_nom5:
+    fflush(stdin);
+    scanf("%[^\n]",&((*u)->prenom));
+    if(!isTextOnly((*u)->prenom))
+    {
+        printf("\n\t!!! N.B : Seul de CARACTERE et ESPACE\nVoyez saisir un PRENOM valide");
+        goto erreur_nom5;
+    }
+    printf("Enter la CIN    : ");
+erreur_print1:
+    fflush(stdin);
+    scanf("%s",&((*u)->CIN));
+    if(!isTextPrint((*u)->CIN))
+    {
+        printf("\n\t!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE\nVoyez saisir une CIN valide");
+        goto erreur_print1;
+    }
+    printf("Enter la CNE    : ");
+erreur_print2:
+    fflush(stdin);
+    scanf("%s",&((*u)->CNE));
+    if(!isTextPrint((*u)->CNE))
+    {
+        printf("\n\t!!! N.B : Seul de CARACTERE, ESPACE et CHIFFRE\nVoyez saisir une CNE valide");
+        goto erreur_print2;
+    }
+    printf("Enter le e-mail : "); fflush(stdin); scanf("%s",&((*u)->email));
+    printf("Enter l'adresse : "); fflush(stdin); scanf("%[^\n]",&((*u)->adresse));
+}
+
+
+void afficher_informations_etudiant_blocklist(user_blocklist *tmp)
+{
+    printf("\n============== Details de l'Etudiant(e) ==============\n");
+    printf("Nom         : %s\n", tmp->nom);
+    printf("Prenom      : %s\n", tmp->prenom);
+    printf("CIN         : %s\n", tmp->CIN);
+    printf("CNE         : %s\n", tmp->CNE);
+    printf("E-mail      : %s\n", tmp->email);
+    printf("Adresse     : %s\n", tmp->adresse);
+    printf("========================================================\n");
+}
+
+void ajouter_etudiant()
+{
+    u2 = (user_blocklist*) malloc (sizeof(user_blocklist));
+    saiser_informations_etudiant_blocklist(&u2);
+    if(recherche_etudiant_blocklist(u2)) printf("L'etudiant(e) %s %s est se mettre déjà dans la liste-noir .\n", u2->prenom, u2->nom);
+    else
+    {
+        fp = fopen(nomFile_5 , "a+t");
+        if(fp == NULL)
+        {
+            printf("\.\.\.\.\.\.\.\.\.\.Impossible d'ouvrir le fichier %s\.\.\.\.\.\.\.\.\.\.\n", nomFile_5);
+            exit(1);
+        }
+        fprintf(fp ,"%s|%s|%s|%s|%s|%s\n", (u2->nom), (u2->prenom), (u2->CIN), (u2->CNE), (u2->email), (u2->adresse));
+        n = fclose(fp);
+        if(n) printf("\n\n\.\.\.\.\.\.\.\.\.\.Erreur de fermer le fichier %s\.\.\.\.\.\.\.\.\.\. ", nomFile_5);
+        supprimer_etudiant(u2);
+    }
+    printf("\n\n\nVoulez-vous ajouter un(e) autre etudiant(e) dans la liste-noir (O/N) ? ");
+erreur_alpha6:
+    fflush(stdin);
+    scanf(" %c", &c);
+    if(toupper(c) != 'O' && toupper(c) != 'N')
+    {
+        printf("Voyez saisir une choix correcte (O/N) : ");
+        goto erreur_alpha6;
+    }
+    else if(toupper(c) == 'O')
+    {
+        system("cls");
+        ajouter_etudiant();
+    }
+    system("cls");
+    blocklist();
+}
 
 void modifier_livre()
 {
@@ -1820,149 +2101,6 @@ erreur_alpha3:
             goto erreur_alpha3;
         }
         else if(toupper(c) == 'O') modifier_livre();
-    }
-}
-
-
-int choose_item(char **items, char *title)
-{
-    int selected_option = 0;
-    int key;
-
-    // Compter le nombre d'options
-    int item_count = 0;
-    while (items[item_count] != NULL)
-    {
-        item_count++;
-    }
-
-    while (1)
-    {
-        // Effacer l'écran (spécifique à Windows)
-        system("cls");
-
-        // Afficher le titre
-        printf(BOLD YELLOW "%s:\n" RESET, title);
-
-        // Afficher les options avec surlignage
-        for (int i = 0; i < item_count; i++)
-        {
-            if (i == selected_option)
-            {
-                // Si l'option sélectionnée est "Refuser", on l'affiche en rouge
-                if (i == 1) {
-                    printf(RED "> %s\n" RESET, items[i]); // Afficher en rouge
-                } else {
-                    printf(GREEN "> %s\n" RESET, items[i]); // Afficher en vert
-                }
-            }
-            else
-            {
-                printf(WHITE "  %s\n" RESET, items[i]);
-            }
-        }
-
-        // Récupérer la saisie de l'utilisateur
-        key = _getch();
-        if (key == 224) // Préfixe des touches fléchées
-        {
-            key = _getch();
-            if (key == 72 && selected_option > 0) // Flèche du haut
-            {
-                selected_option--;
-            }
-            else if (key == 80 && selected_option < item_count - 1) // Flèche du bas
-            {
-                selected_option++;
-            }
-        }
-        else if (key == 13) // Touche Enter
-        {
-            return selected_option;
-        }
-    }
-}
-
-
-void afficherEtAccepterTermesConditions() {
-    setcolor(9);
-    char *options[] = {"Accepter", "Refuser"};
-    int selected_option = 0; // 0 pour "Accepter", 1 pour "Refuser"
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    WORD originalAttrs;
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-
-    GetConsoleScreenBufferInfo(hConsole, &csbi);
-    originalAttrs = csbi.wAttributes;
-
-    while (1) {
-        system("cls");
-        gotoxy(50, 10);
-        printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━|Termes et Conditions|━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ \n");
-        gotoxy(55, 13);
-        printf("1. Chaque étudiant peut emprunter jusqu'à 3 livres à la fois.\n");
-        gotoxy(55, 14);
-        printf("2. La durée maximale d'emprunt est de 30 jours.\n");
-        gotoxy(55, 15);
-        printf("3. Un retard dans la restitution entraînera une pénalité.\n");
-        gotoxy(55, 16);
-        printf("4. Les livres doivent être rendus en bon état.\n");
-        gotoxy(55, 17);
-        printf("5. En cas de perte ou de dégradation, le livre doit être remboursé.\n");
-        gotoxy(55, 18);
-        printf("6. Le non-respect des règles peut entraîner une suspension de prêt.\n");
-        gotoxy(50, 23);
-        printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
-
-        // Centrer les options "Accepter" et "Refuser
-        for (int i = 0; i < 2; i++) {
-            if (i == selected_option) {
-                if (i == 0) {
-                    // "Accepter" à gauche
-                    gotoxy(65, 21); // Position à gauche
-                    SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);
-                } else {
-                    // "Refuser" à droite
-                    gotoxy(105, 21); // Position à droite
-                    SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
-                }
-            } else {
-                // Default color
-                if (i == 0) {
-                    gotoxy(65, 21); // Position à gauche
-                } else {
-                    gotoxy(105, 21); // Position à droite
-                }
-                SetConsoleTextAttribute(hConsole, originalAttrs);
-            }
-            printf("%s\n", options[i]);
-        }
-
-        // Gestion des touches pressées
-        int ch = _getch();
-        if (ch == 224) { // Touche spéciale (flèches)
-            ch = _getch();
-            switch (ch) {
-                case 75: // Flèche gauche
-                    selected_option = 0; // Aller à "Accepter"
-                    break;
-                case 77: // Flèche droite
-                    selected_option = 1; // Aller à "Refuser"
-                    break;
-            }
-        } else if (ch == 13) { // Touche Entrée
-            break;
-        }
-
-        SetConsoleTextAttribute(hConsole, originalAttrs);
-    }
-
-    system("cls");
-
-    if (selected_option == 0) {
-        login_sign_in1();
-    } else {
-        homepage();
     }
 }
 

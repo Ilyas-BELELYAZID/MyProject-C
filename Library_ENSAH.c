@@ -5,13 +5,12 @@
 #include<time.h>
 #include<ctype.h>
 #include <windows.h>
-#include "FONCTION.H"
+#include "FUNCTION.H"
 
-int main()
+void main()
 {
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
     homepage();
     getch();
-    return 0;
 }
