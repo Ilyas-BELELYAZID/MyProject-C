@@ -173,41 +173,37 @@ This module is essential for enforcing library policy. It allows administrators 
 MyProject-C/
 ├── src/
 │   ├── main.c
+│   ├── interface.c
 │   ├── auth.c
 │   ├── student.c
 │   ├── admin.c
 │   ├── book.c
 │   ├── borrow.c
 │   ├── blacklist.c
-│   ├── search.c
-│   ├── file_manager.c
-│   └── utils.c
+│   ├── file_io.c
+│   └── helpers.c
 │
 ├── include/
+│   ├── interface.h
 │   ├── auth.h
 │   ├── student.h
 │   ├── admin.h
 │   ├── book.h
 │   ├── borrow.h
 │   ├── blacklist.h
-│   ├── search.h
-│   ├── file_manager.h
-│   └── utils.h
+│   ├── file_io.h
+│   └── helpers.h
 │
 ├── data/
-│   ├── eleve.txt
-│   ├── livre.txt
-│   ├── emprunter.txt
-│   └── listeNoire.txt
+│   ├── students.txt
+│   ├── books.txt
+│   ├── loans.txt
+│   └── blacklist.txt
 │
 ├── Makefile
 ├── README.md
 ├── LICENSE
-├── .gitignore
-├── docs/
-│   └── project_description.txt
-└── screenshots/
-    └── architecture_diagram.png
+└── .gitignore
 ```
 
 > The architecture is intentionally structured around file persistence, which matches the real implementation of this project.
@@ -342,12 +338,6 @@ These limitations can be addressed in future versions by migrating to a database
 The **Library Management System for ENSA-H** is a practical and well-structured academic project that addresses the essential needs of a university library. By combining modular programming, file-based data persistence, and role-specific interfaces, the system creates an effective solution for managing books, users, borrowing records, and access restrictions.
 
 It represents a solid example of how the **C programming language** can be used to build a functional and maintainable software system in a realistic institutional context.
-
----
-
-## 📌 Repository
-
-- GitHub: https://github.com/Ilyas-BELELYAZID/MyProject-C
 
 ---
 
