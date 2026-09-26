@@ -3,9 +3,11 @@
 <div align="center">
 
 ![C Language](https://img.shields.io/badge/Language-C-blue?logo=c&logoColor=white)
-![Console App](https://img.shields.io/badge/Platform-Console%20Application-brightgreen)
-![File Based](https://img.shields.io/badge/Persistence-File%20Storage-orange)
-![Status](https://img.shields.io/badge/Status-Completed-success)
+![License](https://img.shields.io/badge/License-MIT-orange)
+![Platform](https://img.shields.io/badge/Platform-Console%20Application-brightgreen)
+![Status](https://img.shields.io/badge/Status-Active-brightgreen)
+![License](https://img.shields.io/badge/License-MIT-orange)
+![Contributors](https://img.shields.io/badge/Contributors-Team-success)
 
 </div>
 
@@ -349,10 +351,33 @@ It represents a solid example of how the **C programming language** can be used 
 
 ---
 
+## 📝 License
+
+This project is made available under the MIT License. See LICENSE file for details.
+
+---
+
+## 🔗 Project Links
+
+- **Repository:** [Ilyas-BELELYAZID/MyProject-C](https://github.com/Ilyas-BELELYAZID/MyProject-C)
+- **Issues & Discussions:** [GitHub Issues](https://github.com/Ilyas-BELELYAZID/MyProject-C/issues)
+- **Pull Requests:** [GitHub Pull Requests](https://github.com/Ilyas-BELELYAZID/MyProject-C/pulls)
+
+---
+
+## 📞 Support & Contact
+
+For questions, suggestions, or support, please:
+
+- Open an issue on [GitHub Issues](https://github.com/Ilyas-BELELYAZID/MyProject-C/issues)
+- Contact the development team through the repository
+
+---
+
 <div align="center">
 
-<strong>📚 Ensa-H Library Management System</strong>
+**Developed with ❤️ for ENSA-H Library Management System**
 
-<i>Efficient, practical, and designed for academic library operations.</i>
+*Optimizing library operations through technology and collaboration*
 
 </div>
