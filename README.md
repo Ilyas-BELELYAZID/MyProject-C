@@ -6,7 +6,7 @@
 ![License](https://img.shields.io/badge/License-MIT-orange)
 ![Platform](https://img.shields.io/badge/Platform-Console%20Application-brightgreen)
 ![Status](https://img.shields.io/badge/Status-Active-brightgreen)
-![License](https://img.shields.io/badge/License-MIT-orange)
+![Screenshots](https://img.shields.io/badge/Screenshots-Available-blueviolet)
 ![Contributors](https://img.shields.io/badge/Contributors-Team-success)
 
 </div>
@@ -255,6 +255,44 @@ make
 ### File-Based Persistence
 
 This project does not rely on a database engine. Instead, it stores records in plain text files in the `data/` folder. This keeps the application lightweight and easy to understand.
+
+---
+
+## 📸 Screenshots
+
+**Principal Menu**
+![Principal Menu Screen](Assets/Screenshots/Principal%20Menu.png)
+
+**Sign Up Screen**
+![Sign Up Screen](Assets/Screenshots/Signup%20Page.png)
+
+**Terms and Conditions Screen**
+![Terms and Conditions Screen](Assets/Screenshots/Terms%20and%20Conditions.png)
+
+### Student Interface
+
+**Student Login/Authentication Success**
+![Student Login/Authentication Success Screen](Assets/Screenshots/Student%20Login%20Success.png)
+
+**Student Dashboard**
+![Student Dashboard Screen](Assets/Screenshots/Student%20Interface.png)
+
+**Student Menu**
+![Student Menu Screen](Assets/Screenshots/Student%20Menu.png)
+
+### Administrator Interface
+
+**Admin Login/Authentication Success**
+![Admin Login/Authentication Success Screen](Assets/Screenshots/Admin%20Login%20Success.png)
+
+**Admin Dashboard**
+![Admin Dashboard Screen](Assets/Screenshots/Admin%20Interface.png)
+
+**Admin Menu**
+![Admin Menu Screen](Assets/Screenshots/Administration%20Menu.png)
+
+**Blocklist Screen**
+![Blocklist Screen](Assets/Screenshots/Blocklist%20interface.png)
 
 ---
 
